@@ -1,6 +1,7 @@
 import socket
 import time
 import json
+import threading
 
 
 class ServInit():
@@ -37,15 +38,7 @@ class Response():
 
 
 
-serv_init = ServInit()
-resp = Response(serv_init.start, serv_init.version)
-
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server:
-    server.bind((serv_init.HOST, serv_init.PORT))
-    server.listen()
-    print("Listening...")
-
-    clnt_conn_socket, address = server.accept()
+def client_connection(clnt_socket, addr):
     with clnt_conn_socket:
         print(f"Connected with {address[0]}")
         while True:
@@ -55,3 +48,34 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server:
             if data == "stop":
                 print("Connection terminated")
                 break
+
+
+serv_init = ServInit()
+resp = Response(serv_init.start, serv_init.version)
+
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server:
+    server.bind((serv_init.HOST, serv_init.PORT))
+    server.listen()
+    print("Listening...")
+    threads = []
+    while True:
+        clnt_conn_socket, address = server.accept()
+    ##    with clnt_conn_socket:
+    ##        print(f"Connected with {address[0]}")
+    ##        while True:
+    ##            data = clnt_conn_socket.recv(1024).decode("utf-8")
+    ##            response = resp.prep_serv_response(data)
+    ##            clnt_conn_socket.sendall(response.encode("utf-8"))
+    ##            if data == "stop":
+    ##                print("Connection terminated")
+    ##                break
+    ##        t1 = threading.Thread(target = client_connection, args =(clnt_conn_socket, address))
+    ##        t1.start()                          
+        t = threading.Thread(target = client_connection, args =(clnt_conn_socket, address))
+        threads.append(t)
+        t.start()
+##        for thread in threads:
+##            thread.start()                           
+        if len(threads) == 0:
+            print("Connection terminated")
+            break
