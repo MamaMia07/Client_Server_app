@@ -1,5 +1,5 @@
 import socket
-import time
+import time, datetime
 import json
 import threading
 
@@ -37,15 +37,50 @@ class Response():
         return json.dumps(self.serv_resp, indent = 4)
 
 
-class ClientConnection():
+
+
+class Account():
     def __init__(self):
-        pass
+        self.username = ""
+        self.status = "user"
+        self.password = ""
+        self.name = ""
+        self.date = datetime.datetime.now()#time.localtime()
+# dd/mm/YY H:M:S
+#dt_string = self.date .strftime("%d/%m/%Y %H:%M:%S")
+#print("date and time =", dt_string)
+
+        self.users_lst = self.users_list()
+
+    def users_list(self):
+    # utworzyc odczytanie pliku z usersami json
+
+        
+    def get_username(self):
+##        while True:
+##            self.username = input("username: ")
+            
+        
+
 
     def clnt_login(self, clnt_socket):
         welcome = "Welcome to my server! :)\n type: 'log in' to log in\nor 'new' to create new account"
         #response = json.dumps({"zaloguj" : "", "załóż konto":""}, indent = 4)
         #clnt_conn_socket.sendall(response.encode("utf-8"))
         clnt_conn_socket.sendall(welcome.encode("utf-8"))
+
+
+
+
+class ClientConnection():
+    def __init__(self):
+        pass
+
+##    def clnt_login(self, clnt_socket):
+##        welcome = "Welcome to my server! :)\n type: 'log in' to log in\nor 'new' to create new account"
+##        #response = json.dumps({"zaloguj" : "", "załóż konto":""}, indent = 4)
+##        #clnt_conn_socket.sendall(response.encode("utf-8"))
+##        clnt_conn_socket.sendall(welcome.encode("utf-8"))
     def clnt_serv_communication(self, clnt_socket, addr):
         with clnt_conn_socket:
             print(f"Connected with {address[0]}")
@@ -60,8 +95,11 @@ class ClientConnection():
                     break
 
     def client_connection(self, clnt_socket, addr):
-       self.clnt_login(clnt_socket)
+       #self.clnt_login(clnt_socket)
        self.clnt_serv_communication(clnt_socket, addr)
+
+
+
 
 
 serv_init = ServInit()
