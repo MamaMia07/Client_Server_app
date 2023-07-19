@@ -37,21 +37,36 @@ class Response():
         return json.dumps(self.serv_resp, indent = 4)
 
 
+class ClientConnection():
+    def __init__(self):
+        pass
 
-def client_connection(clnt_socket, addr):
-    with clnt_conn_socket:
-        print(f"Connected with {address[0]}")
-        while True:
-            data = clnt_conn_socket.recv(1024).decode("utf-8")
-            response = resp.prep_serv_response(data)
-            clnt_conn_socket.sendall(response.encode("utf-8"))
-            if data == "stop":
-                print("Connection terminated")
-                break
+    def clnt_login(self, clnt_socket):
+        welcome = "Welcome to my server! :)\n type: 'log in' to log in\nor 'new' to create new account"
+        #response = json.dumps({"zaloguj" : "", "załóż konto":""}, indent = 4)
+        #clnt_conn_socket.sendall(response.encode("utf-8"))
+        clnt_conn_socket.sendall(welcome.encode("utf-8"))
+    def clnt_serv_communication(self, clnt_socket, addr):
+        with clnt_conn_socket:
+            print(f"Connected with {address[0]}")
+            while True:
+                data = clnt_conn_socket.recv(1024).decode("utf-8")
+                print(data)
+                response = resp.prep_serv_response(data)
+                print(response)
+                clnt_conn_socket.sendall(response.encode("utf-8"))
+                if data == "stop":
+                    print("Connection terminated")
+                    break
+
+    def client_connection(self, clnt_socket, addr):
+       self.clnt_login(clnt_socket)
+       self.clnt_serv_communication(clnt_socket, addr)
 
 
 serv_init = ServInit()
 resp = Response(serv_init.start, serv_init.version)
+clnt = ClientConnection()
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server:
     server.bind((serv_init.HOST, serv_init.PORT))
@@ -71,11 +86,11 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server:
     ##                break
     ##        t1 = threading.Thread(target = client_connection, args =(clnt_conn_socket, address))
     ##        t1.start()                          
-        t = threading.Thread(target = client_connection, args =(clnt_conn_socket, address))
+        t = threading.Thread(target = clnt.client_connection, args =(clnt_conn_socket, address))
+        n = len(threads)
         threads.append(t)
-        t.start()
-##        for thread in threads:
-##            thread.start()                           
+        threads[n].start()
+
         if len(threads) == 0:
             print("Connection terminated")
             break

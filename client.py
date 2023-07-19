@@ -8,9 +8,12 @@ size = 1024
 connected = True
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as clnt_socket:
     clnt_socket.connect((HOST, PORT))
+    print(clnt_socket.recv(size).decode("utf-8"))
     while connected: #True:
         request = input("> ")
-        clnt_socket.send(request.encode("utf-8"))
+        if request != "":
+            clnt_socket.send(request.encode("utf-8"))
+        else: continue
         data = ""
         while True:
             rec = clnt_socket.recv(size)
