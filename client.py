@@ -10,7 +10,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as clnt_socket:
     clnt_socket.connect((HOST, PORT))
     print(clnt_socket.recv(size).decode("utf-8"))
     while connected: #True:
-        request = input("> ")
+        request = input("")
         if request != "":
             clnt_socket.send(request.encode("utf-8"))
         else: continue
