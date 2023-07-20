@@ -36,31 +36,53 @@ class Response():
         self.serv_resp = self.set_serv_response(cmd)
         return json.dumps(self.serv_resp, indent = 4)
 
-
+# DLA USERA- OPCJA ZMIANY HASLA
 
 
 class Account():
     def __init__(self):
-        self.username = ""
         self.status = "user"
+        self.username = ""
         self.password = ""
         self.name = ""
-        self.date = datetime.datetime.now()#time.localtime()
-# dd/mm/YY H:M:S
-#dt_string = self.date .strftime("%d/%m/%Y %H:%M:%S")
-#print("date and time =", dt_string)
+        self.date = ""
+        #self.users_lst = self.get_users_list()
 
-        self.users_lst = self.users_list()
+    def account_creat_date(self):
+        return datetime.datetime.now()strftime("%d/%m/%Y %H:%M:%S")
 
-    def users_list(self):
-    # utworzyc odczytanie pliku z usersami json
+    def get_users_list(self):
+        with open("admin/users.json", "r") as users_file:
+            data = users_file.read()
+        self.users_lst = json.loads(data)
+        return self.users_lst
 
-        
+
+    def create_account(self):
+        self.date = self.account_creat_date()
+        self.account = {self.username :
+                  { "status" :  self.status,
+                   "username" : self.username,
+                   "password" :  self.password,
+                   "name" : self.name,
+                   "creation date" : self.date}
+                  }
+
+    def save_new_account(self):
+        self.users_lst.update(self.account)
+        with open("admin/users.json", "w") as users_file:
+            users_file.write(self.users_lst)
+
     def get_username(self):
 ##        while True:
 ##            self.username = input("username: ")
             
         
+##    def creation_date(self):
+##        return datetime.datetime.now()strftime("%d/%m/%Y %H:%M:%S") #time.localtime()
+# dd/mm/YY H:M:S
+#dt_string = self.date .strftime("%d/%m/%Y %H:%M:%S")
+#print("date and time =", dt_string)
 
 
     def clnt_login(self, clnt_socket):

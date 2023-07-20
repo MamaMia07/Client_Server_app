@@ -1,0 +1,16 @@
+{
+    "admin": {
+        "status": "admin",
+        "username": "admin",
+        "password": "dupa1",
+        "name": "MamaMia07",
+        "creation date": "20/07/2023 15:00:36"
+    },
+    "test": {
+        "status": "user",
+        "username": "test",
+        "password": "dupa2",
+        "name": "NoName",
+        "creation date": "20/07/2023 15:00:36"
+    }
+}
