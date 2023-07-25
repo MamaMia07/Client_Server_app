@@ -19,5 +19,26 @@
         "password": "dupa3",
         "name": "SecretName",
         "creation date": "20/07/2023 16:30:20"
+    },
+    "mamamia": {
+        "status": "user",
+        "username": "mamamia",
+        "password": "28e51044f4a9cbae2bbd3d8a9d8c902ad1455d42208277ac4a913b003038a3dc",
+        "name": "sds",
+        "creation date": "25/07/2023 16:15:54"
+    },
+    "wwwwwwwwwwwwwwwww": {
+        "status": "user",
+        "username": "wwwwwwwwwwwwwwwww",
+        "password": "07f5937c9760f50867a78fa68982b1096cec0798448abf9395cd778fcded6f8d",
+        "name": "dfsfs",
+        "creation date": "25/07/2023 16:33:20"
+    },
+    "osa": {
+        "status": "user",
+        "username": "osa",
+        "password": "28e51044f4a9cbae2bbd3d8a9d8c902ad1455d42208277ac4a913b003038a3dc",
+        "name": "dssa",
+        "creation date": "25/07/2023 16:42:38"
     }
 }

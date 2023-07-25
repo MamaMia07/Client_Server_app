@@ -1,11 +1,11 @@
 import socket
 import time, datetime
 import json
-import hashlib
+import pathlib, hashlib
 
 from  basic_methods import BasicMethods as bm
 
-class NewAccount():
+class Account():
     def __init__(self):
         self.status = "user"
         self.username = ""
@@ -27,15 +27,6 @@ class NewAccount():
         #print(account)         
         return account
 
-    
-##    def update_users_lst(self):
-##        #self.account = self.create_account()
-##        return self.users_lst.update(self.account)
-
-##    def save_new_account(self):
-##        users_lst = self.update_users_lst()
-##        with open("admin/users.json", "w") as users_file:
-##            users_file.write(users_lst)
 
     def set_name(self, cmd):
         self.name = cmd
@@ -49,21 +40,14 @@ class NewAccount():
         self.password = code.hexdigest()
         
 
-##    def create_save_new_account(self):
-##        self.account = self.create_account()
-##        users_lst.update(self.account)
-##        #self.update_users_lst()
-##        self.save_new_account()
-##
-##    def prt(self):
-##        cc = self.create_account()
-##        print(vars(self.cc))
 
 #new user registration
 #class ClientConnection():
 class NewUserRegistration():
+
     def __init__(self):
-        self.users_list = bm().read_from_file("admin/users.json")
+        self.new_account = Account()
+        #self.users_list = bm().read_from_file("admin/users.json")
 
     def insert_name(self,clnt_socket):
         while True:
@@ -81,12 +65,13 @@ class NewUserRegistration():
     def insert_username(self,clnt_socket):
         forbidden_symb = """`~!@#$%^&*() +={[}}]|\:;"'<,>?/"""
         forbidden = set(forbidden_symb)
-        
+        users_list = bm().read_from_file("admin/users.json")
+        print(users_list)
         while True:
             data = clnt_socket.recv(1024).decode("utf-8")
             data = data.lower().strip()
                    
-            if data in self.users_list :#["ola", "admin"]:
+            if data in users_list : #["ola", "admin"]:
                 response = {f"username {data}": "already exists\nusername:"}
                 bm().send_serv_response(clnt_socket, response)
                 continue
@@ -148,64 +133,60 @@ class NewUserRegistration():
         return confirm
 
 
-    def save_new_account(self, userslst ):
-        new_acc = new_account.create_account()
-        userslist.update(new_acc)
-        bm().save_file("admin/users.json",self.userslist)
+    def save_new_account(self):
+        users_list = bm().read_from_file("admin/users.json")
+##        print(users_list)
+##        print("")
+        new_acc = self.new_account.create_account()
+##        print(new_acc)
+        users_list.update(new_acc)
+##        print("")
+##        print(users_list)
+        bm().save_file("admin/users.json", users_list)
 
 
     def new_user_details_set(self, clnt_socket, addr):
-        new_account = NewAccount()
+        #new_account = Account()
         while True:
-            response = {"Creating new account":"\nenter your name:"} #,"name:" : ""}
+            response = {"Creating new account":"\nenter your name:"} 
             bm().send_serv_response(clnt_socket, response)
 
             accepted_name = self.insert_name(clnt_socket)
-            new_account.set_name(accepted_name)
-            print(f"zapisane imie użytkownika: {new_account.name}")
+            self.new_account.set_name(accepted_name)
+            print(f"zapisane imie użytkownika: {self.new_account.name}")
 
             response= {"username:":""}
             bm().send_serv_response(clnt_socket, response)
             
             accepted_username = self.insert_username(clnt_socket)
-            new_account.set_username(accepted_username)
-            print(f"zapisana nazwa użytkownika: {new_account.username}")
+            self.new_account.set_username(accepted_username)
+            print(f"zapisana nazwa użytkownika: {self.new_account.username}")
 
             accepted_pass = self.insert_password(clnt_socket)
-            new_account.set_password(accepted_pass)
-            print(f"zapisane haslo użytkownika: {new_account.password}")
+            self.new_account.set_password(accepted_pass)
+            print(f"zapisane haslo użytkownika: {self.new_account.password}")
 
             confirmation = self.confirm_account(clnt_socket)
+            print(confirmation)
             if confirmation:
-            #new_account.create_save_new_account()
-            #new_account.date = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-                
-                self.save_new_account(self.users_list)
-                print(self.users_list)
-                #print(vars(new_account))
-##                print(new_account.name)
-##                print(new_account.username)
-##                print(new_account.password)
-##                print(new_account.status)
-##                print(new_account.date)
-##                print(new_account.users_lst)
-##                print("")
-##                print(acc)
-##                print("")
-##                print(new_account.account)
+                bm().create_users_dir(self.new_account.username)
+                self.save_new_account()
                 break
         
 
-        
-        
+
+
+class LogInUser():
+    def __init__(self):
+        pass
     
+    def log_in(self): pass
         
 
 
 
-
-
-class ClientConnection():
+# TO PRZENIESC DO  class Server
+class ClntServCommunication():
     def __init__(self):
         pass
 
@@ -225,12 +206,12 @@ class ClientConnection():
 
                 
     def client_connection(self, clnt_socket, addr):
-        self.client_registration = NewUserRegistration()
+        
         with clnt_socket:
             print(f"Connected with {addr[0]}")
-            response = {"Welcome to my tiny server! :)":"\ntype:",
-                    "login:":" to log in",
-                    "new:": "to create new account",
+            response = {"Welcome to my tiny server! :)":"\ntype",
+                    "sign:":" to sign in",
+                    "new:": "to register",
                     "exit:": "to disconnect"}
             bm().send_serv_response(clnt_socket, response)
             while True:
@@ -242,13 +223,17 @@ class ClientConnection():
                
                 else: break
             print(data)
+           
+            if data == "new":
+                client_registration = NewUserRegistration()
+                client_registration.new_user_details_set(clnt_socket,addr)
+                        
+            self.logged_clnt_serv_communic(clnt_socket, addr)
+            if data == "exit":
+                print("Connection terminated") # DODAĆ ZAKOŃCZENIE thread
+                #clnt_socket.close()  ?? nie dziala
+            
 
-            try:
-                if data == "new":
-                    #new_account = NewAccount()
-                #self.new_user_details(clnt_socket,addr)
-                    self.client_registration.new_user_details_set(clnt_socket,addr)
-                    
-                self.logged_clnt_serv_communic(clnt_socket, addr)
-            except: clnt_socket.close()
 
+
+        

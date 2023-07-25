@@ -1,6 +1,15 @@
 import datetime, json
-import hashlib
+import hashlib, pathlib
 
+def create_users_dir(username):
+        path = pathlib.Path.cwd()/ "users"
+        new_dir = path /username
+        try:
+            new_dir.mkdir()
+        except FileExistsError:
+            print("file already exists")
+
+create_users_dir("oooo")
 #==========================================
 ##users_lst = {"ola": 1, "isis":2}
 ##
@@ -59,23 +68,23 @@ import hashlib
 ##haslo = m.hexdigest()
 ##print(haslo)
 
-#==========================================================
-
-def get_password():
-        #forbidden_symb = """`~!@#$%^&*() +={[}}|\:;"'<,>?/"""
-        #forbidden = set(forbidden_symb)
-        while True:
-            pass1 = (input("password: "))
-            pass2 = (input("repeat password: "))
-            if pass1 != pass2:
-                print("different passwords entered")
-            else: break
-        code = hashlib.sha256()
-        code.update(pass1.encode())
-        password = code.hexdigest()
-        print(f"password {password} saved")
-
-get_password()
+#=======HASLO ======================================
+##
+##def get_password():
+##        #forbidden_symb = """`~!@#$%^&*() +={[}}|\:;"'<,>?/"""
+##        #forbidden = set(forbidden_symb)
+##        while True:
+##            pass1 = (input("password: "))
+##            pass2 = (input("repeat password: "))
+##            if pass1 != pass2:
+##                print("different passwords entered")
+##            else: break
+##        code = hashlib.sha256()
+##        code.update(pass1.encode())
+##        password = code.hexdigest()
+##        print(f"password {password} saved")
+##
+##get_password()
 
 #===========================================================
 ####dictionary = {"admin" :

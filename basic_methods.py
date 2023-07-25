@@ -1,4 +1,4 @@
-import datetime, json
+import datetime, json, pathlib
 
 class BasicMethods():
     def __init__(self):
@@ -27,10 +27,21 @@ class BasicMethods():
         json_object = json.dumps(data, indent=4)
         try:
             with open(file, "w") as outfile:
-                outfile.write(json_obj)
+                outfile.write(json_object)
         except: print(f"file {file} not saved")
 
 
     @staticmethod
     def update_json(json_obj, new_obj):
         json_obj.update(new_obj)
+
+
+    @staticmethod
+    def create_users_dir(username):
+        path = pathlib.Path.cwd()/ "users"
+        new_dir = path /username
+        try:
+            new_dir.mkdir()
+        except :# FileExistsError:
+            print("file already exists")
+        

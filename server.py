@@ -43,7 +43,7 @@ class Response():
 
 serv_init = ServInit()
 resp = Response(serv_init.start, serv_init.version)
-clnt = account.ClientConnection()
+clnt = account.ClntServCommunication()
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server:
     server.bind((serv_init.HOST, serv_init.PORT))
