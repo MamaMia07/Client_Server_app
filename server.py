@@ -2,6 +2,7 @@ import socket, threading, json
 import time
 import account
 
+from server_communication import ClntServCommunication
 
 
 class ServInit():
@@ -43,20 +44,25 @@ class Response():
 
 serv_init = ServInit()
 resp = Response(serv_init.start, serv_init.version)
-clnt = account.ClntServCommunication()
+clnt = ClntServCommunication()
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server:
     server.bind((serv_init.HOST, serv_init.PORT))
     server.listen()
     print("Listening...")
-    threads = []
+
+    users =[]  # usuwanie z listy po disconnected!!!
+
     while True:
         clnt_conn_socket, address = server.accept()
-        t = threading.Thread(target = clnt.client_connection, args =(clnt_conn_socket, address))
-        n = len(threads)
-        threads.append(t)
-        threads[n].start()
+        users.append(clnt_conn_socket)
+        print(len(users)) 
 
-        if len(threads) == 0:
-            print("Connection terminated")
-            break
+        thread = threading.Thread(target = clnt.client_connection, args =(clnt_conn_socket, address))
+        thread.start()
+##        n = len(threads)
+##        threads.append(t)
+##        threads[n].start()
+
+        
+        

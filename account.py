@@ -2,8 +2,8 @@ import socket
 import time, datetime
 import json
 import pathlib, hashlib
-
 from  basic_methods import BasicMethods as bm
+
 
 class Account():
     def __init__(self):
@@ -21,12 +21,8 @@ class Account():
                        "username" : self.username,
                        "password" :  self.password,
                        "name" : self.name,
-                       "creation date" : self.date}
-                   }
-
-        #print(account)         
+                       "creation date" : self.date}}
         return account
-
 
     def set_name(self, cmd):
         self.name = cmd
@@ -41,13 +37,10 @@ class Account():
         
 
 
-#new user registration
-#class ClientConnection():
-class NewUserRegistration():
 
+class NewUserRegistration():
     def __init__(self):
         self.new_account = Account()
-        #self.users_list = bm().read_from_file("admin/users.json")
 
     def insert_name(self,clnt_socket):
         while True:
@@ -56,11 +49,8 @@ class NewUserRegistration():
                 response = {f"name {self.name}": "can not be empty"}
                 bm().send_serv_response(clnt_socket, response)
             else:
-##                response = {f"name:{self.name}": "saved"}
-##                self.send_serv_response(clnt_socket, response)
                 break
         return data
-        
     
     def insert_username(self,clnt_socket):
         forbidden_symb = """`~!@#$%^&*() +={[}}]|\:;"'<,>?/"""
@@ -71,7 +61,7 @@ class NewUserRegistration():
             data = clnt_socket.recv(1024).decode("utf-8")
             data = data.lower().strip()
                    
-            if data in users_list : #["ola", "admin"]:
+            if data in users_list : 
                 response = {f"username {data}": "already exists\nusername:"}
                 bm().send_serv_response(clnt_socket, response)
                 continue
@@ -83,11 +73,7 @@ class NewUserRegistration():
                 response = {f"username {data} contains invalid char": f"{forbidden}\nusername:"}
                 bm().send_serv_response(clnt_socket, response)
                 continue
-            else:
-                #new_account.get_username(data)
-                #response ={f"username {data}": "accepted"}
-                #self.send_serv_response(response)
-                break
+            else: break
         return data
 
 
@@ -95,30 +81,20 @@ class NewUserRegistration():
         response = {"password:":""} 
         bm().send_serv_response(clnt_socket, response)
         while True:
-##            response = {"password:":""} 
-##            self.send_serv_response(response)
             pass1 = clnt_socket.recv(1024).decode("utf-8")
-
             if len(pass1)<4:
                 response = {"password should have at least":"4 characters\npassword:"}
                 bm().send_serv_response(clnt_socket, response)
                 continue
-
             response = {"repeat password:":""}
             bm().send_serv_response(clnt_socket, response)
             pass2 = clnt_socket.recv(1024).decode("utf-8")
-
             if pass1 != pass2:
                 response = {"two different passwords have been entered":"\npassword:"}
                 bm().send_serv_response(clnt_socket, response)
                 continue
-                    
-            else:
-                #response = {"password saved":""}
-                #ClientConnection().send_serv_response(clnt_socket, response)
-                break
+            else: break
         return pass1
-        
 
     def confirm_account(self, clnt_socket):
         confirm = True
@@ -135,18 +111,12 @@ class NewUserRegistration():
 
     def save_new_account(self):
         users_list = bm().read_from_file("admin/users.json")
-##        print(users_list)
-##        print("")
         new_acc = self.new_account.create_account()
-##        print(new_acc)
         users_list.update(new_acc)
-##        print("")
-##        print(users_list)
         bm().save_file("admin/users.json", users_list)
 
 
-    def new_user_details_set(self, clnt_socket, addr):
-        #new_account = Account()
+    def new_user_data_setting(self, clnt_socket, addr):
         while True:
             response = {"Creating new account":"\nenter your name:"} 
             bm().send_serv_response(clnt_socket, response)
@@ -169,71 +139,51 @@ class NewUserRegistration():
             confirmation = self.confirm_account(clnt_socket)
             print(confirmation)
             if confirmation:
-                bm().create_users_dir(self.new_account.username)
                 self.save_new_account()
+                bm().create_users_dir(self.new_account.username)
+                response = {f"account for {self.new_account.username} created.\n":"\nType",
+                            " sign:": "to sing in",
+                            " exit:" : "to disconnect"}
+                bm().send_serv_response(clnt_socket, response)
                 break
         
 
-
-
-class LogInUser():
+class SignInUser():
     def __init__(self):
-        pass
+        self.users_list = bm().read_from_file("admin/users.json")
     
-    def log_in(self): pass
-        
-
-
-
-# TO PRZENIESC DO  class Server
-class ClntServCommunication():
-    def __init__(self):
-        pass
-
-#DOSTOSOWAC DO USERA I ADMINA wraz z class Response    
-    def logged_clnt_serv_communic(self, clnt_socket, addr):
-##        with clnt_conn_socket:
-##            print(f"Connected with {address[0]}")
-            while True:
-                data = clnt_socket.recv(1024).decode("utf-8")
-                print(data)
-                response = resp.prep_serv_response(data)
-                print(response)
-                clnt_conn_socket.sendall(response.encode("utf-8"))
-                if data == "stop":
-                    print("Connection terminated")
-                    break
-
-                
-    def client_connection(self, clnt_socket, addr):
-        
-        with clnt_socket:
-            print(f"Connected with {addr[0]}")
-            response = {"Welcome to my tiny server! :)":"\ntype",
-                    "sign:":" to sign in",
-                    "new:": "to register",
-                    "exit:": "to disconnect"}
-            bm().send_serv_response(clnt_socket, response)
-            while True:
-                data = clnt_socket.recv(1024).decode("utf-8")
-                if data not in ["login", "new", "exit"]:
-                    response = {"bad command:": data}
-                    print(response)
-                    bm().send_serv_response(clnt_socket, response)
-               
-                else: break
-            print(data)
+    def check_user(self, name):
+        return name  in self.users_list
+ 
+    def check_password(self, name, passw):
+        return passw ==  self.users_list[name]["password"]
            
-            if data == "new":
-                client_registration = NewUserRegistration()
-                client_registration.new_user_details_set(clnt_socket,addr)
-                        
-            self.logged_clnt_serv_communic(clnt_socket, addr)
-            if data == "exit":
-                print("Connection terminated") # DODAĆ ZAKOŃCZENIE thread
-                #clnt_socket.close()  ?? nie dziala
-            
+     def users_sign_in(self, clnt_socket):
+        while True:
+            response = {"username:":""} 
+            bm().send_serv_response(clnt_socket, response)
+            username = clnt_socket.recv(1024).decode("utf-8")
+
+            response = {"password:":""} 
+            bm().send_serv_response(clnt_socket, response)
+            password = clnt_socket.recv(1024).decode("utf-8")
+
+            if self.check_user(username) and self.check_password(username, password):
+                status = self.user_list[username]["status"]
+                logged_user = User(username, status)
+                return logged_user
+            break
+
+            response = {f"account for {self.new_account.username} created.\n":"\nType",
+                            " sign:": "to sing in",
+                            " exit:" : "to disconnect"}
+            bm().send_serv_response(clnt_socket, response)
+
+        
 
 
 
+
+        
+    
         
