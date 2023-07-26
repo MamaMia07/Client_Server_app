@@ -1,4 +1,4 @@
-import datetime, json, pathlib
+import datetime, json, pathlib, hashlib
 
 class BasicMethods():
     def __init__(self):
@@ -32,8 +32,14 @@ class BasicMethods():
 
 
     @staticmethod
-    def update_json(json_obj, new_obj):
-        json_obj.update(new_obj)
+    def code_password(passw):
+        code = hashlib.sha256()
+        code.update(passw.encode())
+        password = code.hexdigest()
+        return password
+##    @staticmethod
+##    def update_json(json_obj, new_obj):
+##        json_obj.update(new_obj)
 
 
     @staticmethod

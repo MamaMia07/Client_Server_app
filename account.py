@@ -31,10 +31,8 @@ class Account():
         self.username = cmd
 
     def set_password(self, cmd):
-        code = hashlib.sha256()
-        code.update(cmd.encode())
-        self.password = code.hexdigest()
-        
+        self.password = bm().code_password(cmd)
+
 
 
 
@@ -48,8 +46,7 @@ class NewUserRegistration():
             if data == "" :
                 response = {f"name {self.name}": "can not be empty"}
                 bm().send_serv_response(clnt_socket, response)
-            else:
-                break
+            else: break
         return data
     
     def insert_username(self,clnt_socket):
@@ -60,7 +57,6 @@ class NewUserRegistration():
         while True:
             data = clnt_socket.recv(1024).decode("utf-8")
             data = data.lower().strip()
-                   
             if data in users_list : 
                 response = {f"username {data}": "already exists\nusername:"}
                 bm().send_serv_response(clnt_socket, response)
@@ -82,7 +78,7 @@ class NewUserRegistration():
         bm().send_serv_response(clnt_socket, response)
         while True:
             pass1 = clnt_socket.recv(1024).decode("utf-8")
-            if len(pass1)<4:
+            if len(pass1) < 4:
                 response = {"password should have at least":"4 characters\npassword:"}
                 bm().send_serv_response(clnt_socket, response)
                 continue
@@ -150,35 +146,44 @@ class NewUserRegistration():
 
 class SignInUser():
     def __init__(self):
-        self.users_list = bm().read_from_file("admin/users.json")
-    
+        self.username = ""
+        self.status = ""
+
     def check_user(self, name):
-        return name  in self.users_list
+        users_list = bm().read_from_file("admin/users.json")
+        return name  in users_list
  
     def check_password(self, name, passw):
-        return passw ==  self.users_list[name]["password"]
+        passw = bm().code_password(passw)
+        users_list = bm().read_from_file("admin/users.json")
+        return passw == users_list[name]["password"]
            
-     def users_sign_in(self, clnt_socket):
+    def users_sign_in(self, clnt_socket, addr):
+        users_list = bm().read_from_file("admin/users.json")
         while True:
             response = {"username:":""} 
             bm().send_serv_response(clnt_socket, response)
-            username = clnt_socket.recv(1024).decode("utf-8")
-
+            received_username = clnt_socket.recv(1024).decode("utf-8")
+            print(received_username)
+            
             response = {"password:":""} 
             bm().send_serv_response(clnt_socket, response)
-            password = clnt_socket.recv(1024).decode("utf-8")
-
-            if self.check_user(username) and self.check_password(username, password):
-                status = self.user_list[username]["status"]
-                logged_user = User(username, status)
-                return logged_user
-            break
-
-            response = {f"account for {self.new_account.username} created.\n":"\nType",
-                            " sign:": "to sing in",
-                            " exit:" : "to disconnect"}
-            bm().send_serv_response(clnt_socket, response)
-
+            received_password = clnt_socket.recv(1024).decode("utf-8")
+            print(received_password)
+            
+            if self.check_user(received_username) and self.check_password(received_username, received_password):
+                self.username = received_username
+                self.status = users_list[self.username]["status"]
+                response = {f"user {self.username}":"is logged in"}
+                bm().send_serv_response(clnt_socket, response)
+                break
+            else:
+                response = {f"username or password incorrect\n":"Type",
+                                " sign:": "to sing in",
+                                " exit:" : "to disconnect"}
+                bm().send_serv_response(clnt_socket, response)
+                continue
+        return self.username , self.status
         
 
 
