@@ -2,7 +2,7 @@ import socket, threading, json
 import time
 import account
 
-from server_communication import ClntServCommunication
+from clnt_server_com import ClntServCommunication
 
 
 class ServInit():
@@ -58,7 +58,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server:
         users.append(clnt_conn_socket)
         print(len(users)) 
 
-        thread = threading.Thread(target = clnt.client_connection, args =(clnt_conn_socket, address))
+        thread = threading.Thread(target = clnt.handle_client, args =(clnt_conn_socket, address))
         thread.start()
 ##        n = len(threads)
 ##        threads.append(t)
