@@ -1,7 +1,6 @@
 import socket, threading, json
 import time
 import account
-
 from clnt_server_com import ClntServCommunication
 
 
@@ -12,39 +11,9 @@ class ServInit():
     def __init__(self):
         self.start = time.time()
 
-        
-class Response():
-    def __init__(self, start_serv, version):
-        self.help = {"stop": " : disconnect",
-                        "info": " : server software version",
-                        "uptime": " : server uptime",
-                        "help": " : menu help"}
-        self.start = start_serv
-        self.version = version
-
-    def set_serv_response(self, cmd):
-        self.server_life = time.time() - self.start
-        self.responses = {"info": {"server v.:": self.version},
-                         "uptime": {"server uptime:": f"{self.server_life:.4f}s"},
-                         "stop" : {"connection status:": "terminated"},
-                         "help": self.help}
-        if cmd in self.responses:
-            return self.responses[cmd]
-        else:
-            return {"Unknown command.\nType 'help' for command list.":""}
- 
-    def prep_serv_response(self, cmd):
-        self.serv_resp = self.set_serv_response(cmd)
-        return json.dumps(self.serv_resp, indent = 4)
-
-# DLA USERA- OPCJA ZMIANY HASLA
-# if cmd = "exit" -__>  clnt_conn_socket.close()
-
-
 
 serv_init = ServInit()
-resp = Response(serv_init.start, serv_init.version)
-clnt = ClntServCommunication()
+clnt_serv = ClntServCommunication(serv_init.start, serv_init.version)
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server:
     server.bind((serv_init.HOST, serv_init.PORT))
@@ -58,7 +27,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server:
         users.append(clnt_conn_socket)
         print(len(users)) 
 
-        thread = threading.Thread(target = clnt.handle_client, args =(clnt_conn_socket, address))
+        thread = threading.Thread(target = clnt_serv.handle_client, args =(clnt_conn_socket, address))
         thread.start()
 ##        n = len(threads)
 ##        threads.append(t)

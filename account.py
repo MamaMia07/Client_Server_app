@@ -39,35 +39,34 @@ class NewUserRegistration():
 
     def insert_name(self,clnt_socket):
         while True:
-            data = clnt_socket.recv(1024).decode("utf-8")
-            if data == "" :
-                response = {f"name {self.name}": "can not be empty"}
+            recvd_name = clnt_socket.recv(1024).decode("utf-8")
+            if recvd_name == "" :
+                response = {f"name ": "can not be empty"}
                 bm().send_serv_response(clnt_socket, response)
             else: break
-        return data
+        return recvd_name
     
     def insert_username(self,clnt_socket):
         forbidden_symb = """`~!@#$%^&*() +={[}}]|\:;"'<,>?/"""
         forbidden = set(forbidden_symb)
         users_list = bm().read_from_file("admin/users.json")
-        print(users_list)
         while True:
-            data = clnt_socket.recv(1024).decode("utf-8")
-            data = data.lower().strip()
-            if data in users_list : 
-                response = {f"username {data}": "already exists\nusername:"}
+            recvd_usernm = clnt_socket.recv(1024).decode("utf-8")
+            recvd_usernm = data.lower().strip()
+            if recvd_usernm in users_list : 
+                response = {f"username {recvd_usernm}": "already exists\nusername:"}
                 bm().send_serv_response(clnt_socket, response)
                 continue
-            elif data == "" :
-                response = {f"username {data}": "can not be empty\nusername:"}
+            elif recvd_usernm == "" :
+                response = {f"username ": "can not be empty\nusername:"}
                 bm().send_serv_response(clnt_socket, response)
                 continue
-            elif any(symbol in forbidden for symbol in data):
-                response = {f"username {data} contains invalid char": f"{forbidden}\nusername:"}
+            elif any(symbol in forbidden for symbol in recvd_usernm):
+                response = {f"username {recvd_usernm} contains invalid char": f"{forbidden}\nusername:"}
                 bm().send_serv_response(clnt_socket, response)
                 continue
             else: break
-        return data
+        return recvd_usernm
 
     def insert_password(self, clnt_socket):
         response = {"password:":""} 
@@ -156,7 +155,7 @@ class SignInUser():
         return passw == users_list[name]["password"]
            
 
-    def sign_in_user(self, clnt_socket, menu, user_menu):
+    def sign_in_user(self, clnt_socket, start_menu, user_menu):
         users_list = bm().read_from_file("admin/users.json")
 
         response = {"username:":""} 
@@ -179,5 +178,5 @@ class SignInUser():
             response.update(user_menu)
         else:
             response = {f"Username or password incorrect.":"\n"}
-            response.update(menu)
+            response.update(start_menu)
         bm().send_serv_response(clnt_socket, response)
