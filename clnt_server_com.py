@@ -101,7 +101,10 @@ class ClntServCommunication():
             if data == "new":
                 print("jest NEW")
                 self.logged_in_user.send_msg(clnt_socket, self.user_menu)
-                
+
+            if data == "mailbox":
+                print("jest SKRZYNKA")
+                self.logged_in_user.read_msg(clnt_socket, self.user_menu)   
 ##                data = clnt_socket.recv(1024).decode("utf-8")
 ##                print(data)
 ##                response = resp.prep_serv_response(data)

@@ -11,15 +11,16 @@ class BasicMethods():
 
 
     @staticmethod
-    def read_from_file(file):
+    def read_from_file(file_path):
+        #file_path = path/file
         try:
-            with open(file, "r") as outfile:
+            with open(file_path, "r") as outfile:
                 data = outfile.read()
                 data = json.loads(data)
             return data
         except json.decoder.JSONDecodeError:
-            print(f"file {file} can not be opened")
-        except: print("file operation failed")
+            print(f"file {file_path} can not be read")
+        except: print(f"file {file_path} content not available")
 
 
     @staticmethod

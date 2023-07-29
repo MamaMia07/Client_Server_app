@@ -6,7 +6,7 @@ class User():
     def __init__(self, username, status="user"):
         self.username = username
         self.status = status
-
+        self.path = f"users/{self.username}/"
 
     def send_msg(self, clnt_socket, user_menu):
         new_msg = Message(self.username)
@@ -14,9 +14,18 @@ class User():
         
 
 
-    def read_msg(self):
-        pass
+    def read_msg(self, clnt_socket, user_menu, file):
+        path_file = self.path + file #"received_msgs.json"
+        message_box = bm().read_from_file(path_file)
+# generator
+        while True:
+            message = 
+#formatowanie wyswietlanych wynikow:
         
+
+
+        message_box.update({"":user_menu})
+        bm().send_serv_response(clnt_socket, message_box)
 
 
 
@@ -47,11 +56,11 @@ class Message():
 
     def create_message(self):
         self.date = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-        message = { "sender" :  self.sender,
+        message = { self.date: {"sender" :  self.sender,
                     "recipient" : self.recipient,
                     "text" :  self.text,
                     "message read" : False,
-                    "creation date" : self.date}
+                    "creation date" : self.date}}
        
         return message
 
@@ -91,19 +100,18 @@ class Message():
             else: break
         return recvd_text
 
-# WIADOMOSCI DOLACZANIE DO json !!!!!!!!!!!!!!!!
-    def save_msg(self, new_msg, recipient):
-        #print(f"{recipient}/'user_msgs.json'")
-        file = f"users/{recipient}/user_msgs.json"
+
+    def save_msg(self, new_msg, name, file):
+        file_path = f"users/{name}/" + file  #user_msgs.json"
         print(f"\n\nzapisana tresc wiadomości\nod {self.sender}\ndo {self.recipient}\n{self.text}")
         try:
-            msg_list = bm().read_from_file(file)
+            msg_list = bm().read_from_file(recip_file_path)
             print(msg_list)
-            msg_list = {**msg_list, **new_msg}
-        except: pass
-            #msg_list = new_msg
+            msg_list.update(new_msg)
+        except:
+            msg_list = new_msg
         print(msg_list)
-        bm().save_file(file, msg_list)
+        bm().save_file(file_path, msg_list)
 
 
 
@@ -124,7 +132,8 @@ class Message():
             if confirm  in ["y", "n"]:
                 if confirm == "y":
                     new_message = self.create_message()
-                    self.save_msg(new_message, self.recipient)
+                    self.save_msg(new_message, self.recipient, "received_msgs.json")
+                    self.save_msg(new_message, self.sender, "sent_msgs.json")
                     response= {"message has been sent.":"\n"}
                     response.update(user_menu)
                 else:
