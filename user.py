@@ -11,23 +11,34 @@ class User():
     def send_msg(self, clnt_socket, user_menu):
         new_msg = Message(self.username)
         new_msg.create_and_send_msg(clnt_socket, user_menu)
-        
 
-
-    def read_msg(self, clnt_socket, user_menu, file):
-        path_file = self.path + file #"received_msgs.json"
+    def read_msg(self, clnt_socket, user_menu):
+        path_file = self.path + "received_msgs.json"
         message_box = bm().read_from_file(path_file)
-# generator
-        while True:
-            message = 
-#formatowanie wyswietlanych wynikow:
+        for key in message_box:
+            if message_box[key]["message read"] == False:
+                print(message_box[key]["message read"])
+                msg = {"from:" : message_box[key]["sender"],
+                   "date:" : message_box[key]["creation date"],
+                   "text:\n" : message_box[key]["text"] }
+              
+                message_box[key]["message read"] = True
+                print(message_box[key]["message read"])
+                nextmsg = {"next message?": "y/n"}
+                msg.update(nextmsg)
+                bm().send_serv_response(clnt_socket, msg)
+                while True:
+                    answ = clnt_socket.recv(1024).decode("utf-8")
+                    if answ in[ "n", "y"]: break
+                if answ == "n":
+                    bm().send_serv_response(clnt_socket, user_menu)
+                    break
+        bm().save_file(path_file, message_box)
+        finish = {"All messages are read.": "\n"}
+        finish.update(user_menu)
+        bm().send_serv_response(clnt_socket, finish)
         
-
-
-        message_box.update({"":user_menu})
-        bm().send_serv_response(clnt_socket, message_box)
-
-
+    
 
 
 # DLA USERA- OPCJA ZMIANY HASLA
@@ -40,7 +51,7 @@ class Admin(User):
     def __init__(self, username, status="admin"):
         self.username = username
         self.status = status
-
+        self.path = f"users/{self.username}/"
 
 
 
@@ -61,7 +72,6 @@ class Message():
                     "text" :  self.text,
                     "message read" : False,
                     "creation date" : self.date}}
-       
         return message
 
     def set_recipient(self, clnt_socket):
@@ -95,24 +105,31 @@ class Message():
                 response = {f"username": "can not be empty\nrecipient:"}
                 bm().send_serv_response(clnt_socket, response)
             elif len(recvd_text) > 255:
-                response = {f"the message text limit is 255 characters\n":"please abbreviate the text\nmessage content:"}
+                response = {f"text limit is 255 characters\n":"please\
+ abbreviate the text\nmessage content:"}
                 bm().send_serv_response(clnt_socket, response)
             else: break
         return recvd_text
 
-
+    def nmb_not_read_msgs(self,name, file):
+        file_path = f"users/{name}/" + file
+        not_read_msgs = 0
+        try:
+            message_box = bm().read_from_file(file_path)
+            for key in message_box:
+                if message_box[key]["message read"] == False:
+                    not_read_msgs += 1
+            return not_read_msgs
+        except: return 0
+        
     def save_msg(self, new_msg, name, file):
-        file_path = f"users/{name}/" + file  #user_msgs.json"
+        file_path = f"users/{name}/" + file  
         print(f"\n\nzapisana tresc wiadomości\nod {self.sender}\ndo {self.recipient}\n{self.text}")
         try:
             msg_list = bm().read_from_file(recip_file_path)
-            print(msg_list)
             msg_list.update(new_msg)
-        except:
-            msg_list = new_msg
-        print(msg_list)
+        except: msg_list = new_msg
         bm().save_file(file_path, msg_list)
-
 
 
     def create_and_send_msg(self, clnt_socket, user_menu):
@@ -130,17 +147,20 @@ class Message():
             bm().send_serv_response(clnt_socket, response)
             confirm = clnt_socket.recv(1024).decode("utf-8")
             if confirm  in ["y", "n"]:
+                recipier_box = self.nmb_not_read_msgs(self.recipient, "received_msgs.json")
                 if confirm == "y":
-                    new_message = self.create_message()
-                    self.save_msg(new_message, self.recipient, "received_msgs.json")
-                    self.save_msg(new_message, self.sender, "sent_msgs.json")
-                    response= {"message has been sent.":"\n"}
-                    response.update(user_menu)
+                    if recipier_box < 5:
+                        new_message = self.create_message()
+                        self.save_msg(new_message, self.recipient, "received_msgs.json")
+                        self.save_msg(new_message, self.sender, "sent_msgs.json")
+                        response= {"message has been sent.":"\n"}
+                        response.update(user_menu)
+                    else:
+                        response= {"message can not be sent":"- recipier's meeeage box ........."}
+                        response.update(user_menu)
                 else:
                     response = {f"message not sent.":"\n"}
                     response.update(user_menu)
                 bm().send_serv_response(clnt_socket, response)
-
-
                 break
 
