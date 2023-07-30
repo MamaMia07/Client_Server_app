@@ -1,3 +1,4 @@
+#import time
 import account 
 import user
 from  tools import BasicMethods as bm
@@ -6,116 +7,98 @@ from  tools import BasicMethods as bm
 class ClntServCommunication():
     def __init__(self, start_serv, version):
         
-        self.help = {"stop" : ": disconnect",
-                        "info": " : server software version",
-                        "uptime": " : server uptime",
-                        "help": " : menu help"}
+        self.serv_info = {"info": " : server software version",
+                          "uptime": " : server uptime"
+                          }
         self.serv_start = start_serv
         self.version = version
         
-        self.start_menu = {"Type":"",
-                      "sign":": to sign in",
-                      "new": ": to register",
-                      "exit": ": to disconnect"}
+        self.start_menu = {"\nType":"",
+                      "sign":": sign in",
+                      "new": ": register new account",
+                      "exit": ": disconnect"}
 
         self.user_menu = {"Type":"",
-                      "message" : ": to send message",
-                      "new":  ": to rad new messages in mailbox",
-                      "mailbox": ": to read all messages in mailbox",
-                      "exit": ": to disconnect"}
+                      "new" : ": send new message",
+                      "read":  ": read new messages in your mailbox",
+                      "mailbox": ": read all messages in your mailbox",
+                      "sent": ": read sent messages",
+                      "exit": ": disconnect"}
+        self.admin_menu = {"users": " : list of users",
+                          "pass": " : change user's passwrd",
+                           "delete": " : delete user's account"
+                          }
 
-## ===== DLA ADMINA=====================
-##    def set_serv_response(self, cmd):
-##        self.server_life = time.time() - self.start
-##        self.responses = {"info": {"server v.:": self.version},
-##                         "uptime": {"server uptime:": f"{self.server_life:.4f}s"},
-##                         "stop" : {"connection status:": "terminated"},
-##                         "help": self.help}
-##        if cmd in self.responses:
-##            return self.responses[cmd]
-##        else:
-##            return {"Unknown command.\nType 'help' for command list.":""}
-## 
-##    def prep_serv_response(self, cmd):
-##        self.serv_resp = self.set_serv_response(cmd)
-##        return json.dumps(self.serv_resp, indent = 4)
-##
-
-##===============================================
+        self.admin_menu = {**self.admin_menu, **self.serv_info}
 
     def new_account(self, clnt_socket, start_menu):
         client_registration = account.NewUserRegistration()
         client_registration.new_user_data_setting(clnt_socket,start)
         
 
-    def sign_in(self, clnt_socket, start_menu, user_menu):
+    def sign_in(self, clnt_socket, start_menu, user_menu, adm_menu):
          user_signin = account.SignInUser()
-         user_signin.sign_in_user(clnt_socket, start_menu, user_menu)
+         user_signin.sign_in_user(clnt_socket, start_menu, user_menu, adm_menu)
          return user_signin
-         
-         
 
-    def log_out(self):
-        pass
-                
     def user_connection(self, clnt_socket, addr):
         print(f"Connected with {addr[0]}")
-        welcome = {"Welcome to my tiny server! :)":"\n"}
+        welcome = {"Welcome to my tiny server! :)":""}
         response =  {**welcome , **self.start_menu}
         bm().send_serv_response(clnt_socket, response)
         while True:
             data = clnt_socket.recv(1024).decode("utf-8")
-            if data not in  self.start_menu: #["sign", "new", "exit"]:
+            if data not in  self.start_menu:
                 response = {"bad command:": data}
-                print(response)
                 bm().send_serv_response(clnt_socket, response)
                 continue
             if data == "new":
                 self.new_account(clnt_socket, self.start_menu)
                 data = clnt_socket.recv(1024).decode("utf-8")
             if data == "sign":
-                sign_in = self.sign_in(clnt_socket, self.start_menu, self.user_menu)
+                sign_in = self.sign_in(clnt_socket, self.start_menu, self.user_menu, self.admin_menu)
                 if sign_in.status == "user":
                     self.logged_in_user = user.User(sign_in.username, sign_in.status)
-##                        print(f"name logged: {logged_user.username}")
-##                        print(f"status logged: {logged_user.status}")
+                    print(f"{self.logged_in_user.username} logged in as {self.logged_in_user.status}")
                     break
-                if sign_in.status == "admin":
+                elif sign_in.status == "admin":
+                    self.user_menu =  {**self.user_menu , **self.admin_menu}
                     self.logged_in_user = user.Admin(sign_in.username, sign_in.status)
+                    print(f"{self.logged_in_user.username} logged in as {self.logged_in_user.status}")
                     break
             if data == "exit":
                 print("Connection terminated")
                 break
-        
-                    
-            
-#DOSTOSOWAC DO USERA I ADMINA wraz z class Response    
+
+
     def logged_user(self, clnt_socket):
         while True:
             data = clnt_socket.recv(1024).decode("utf-8")
-            if data not in self.user_menu: #["new", "box", "exit"]:
+            if data not in self.user_menu: 
                 response = {"bad command:": data}
                 print(response)
                 bm().send_serv_response(clnt_socket, response)
                 continue
             if data == "new":
-                print("jest NEW")
                 self.logged_in_user.send_msg(clnt_socket, self.user_menu)
-
-            if data == "mailbox":
-                print("jest SKRZYNKA")
-                self.logged_in_user.read_msg(clnt_socket, self.user_menu)   
-##                data = clnt_socket.recv(1024).decode("utf-8")
-##                print(data)
-##                response = resp.prep_serv_response(data)
-##                print(response)
-##                clnt_conn_socket.sendall(response.encode("utf-8"))
-##                if data == "stop":
-##                    print("Connection terminated")
-##                    break
+            if data == "read":
+                self.logged_in_user.read_received_msgs(clnt_socket, self.user_menu)   
+            if data == "mailbox": 
+                self.logged_in_user.read_received_msgs(clnt_socket, self.user_menu, "")
+            if data == "sent":
+                self.logged_in_user.read_sent_msgs(clnt_socket, self.user_menu, "")
             if data == "exit":
                 print("Connection terminated")
                 break
+   # admin permissions 
+            if data in self.serv_info:
+                self.logged_in_user.send_serv_info(clnt_socket, data, self.serv_start,self.version, self.user_menu)
+            if data == "users":
+                self.logged_in_user.list_of_users(clnt_socket, self.user_menu)
+            if data == "pass":
+                self.logged_in_user.change_password(clnt_socket, self.user_menu)
+            if data == "delete":
+                self.logged_in_user.delete_account(clnt_socket, self.user_menu)
 
     def handle_client(self, clnt_socket, addr):
         with clnt_socket:

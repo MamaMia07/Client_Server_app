@@ -155,19 +155,16 @@ class SignInUser():
         return passw == users_list[name]["password"]
            
 
-    def sign_in_user(self, clnt_socket, start_menu, user_menu):
+    def sign_in_user(self, clnt_socket, start_menu, user_menu, adm_menu):
         users_list = bm().read_from_file("admin/users.json")
-
         response = {"username:":""} 
         bm().send_serv_response(clnt_socket, response)
         recvd_username = clnt_socket.recv(1024).decode("utf-8")
-        print(recvd_username)
 
         response = {"password:":""} 
         bm().send_serv_response(clnt_socket, response)
         recvd_password = clnt_socket.recv(1024).decode("utf-8")
         recvd_password = bm().code_password(recvd_password)
-        print(recvd_password)
 
         if self.check_user(recvd_username) and self.check_password(recvd_username, recvd_password):
             self.username = recvd_username
@@ -175,6 +172,7 @@ class SignInUser():
             username = recvd_username
             status = users_list[recvd_username]["status"]
             response = {f"User {self.username}":"is logged in\n"}
+            if status == "admin" : user_menu.update(adm_menu)
             response.update(user_menu)
         else:
             response = {f"Username or password incorrect.":"\n"}

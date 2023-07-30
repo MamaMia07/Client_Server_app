@@ -3,21 +3,14 @@
         "sender": "rewq",
         "recipient": "tola",
         "text": "wiadomosc do toli od rewq",
-        "message read": true,
+        "message read": false,
         "creation date": "30/07/2023 18:49:58"
-    },
-    "30/07/2023 18:54:21": {
-        "sender": "rewq",
-        "recipient": "zosia",
-        "text": "druga wiadomosc do Zosi od rewq",
-        "message read": true,
-        "creation date": "30/07/2023 18:54:21"
     },
     "30/07/2023 18:55:17": {
         "sender": "rewq",
         "recipient": "tola",
         "text": "druga wiadomo\u015bc do toli od rewq",
-        "message read": true,
+        "message read": false,
         "creation date": "30/07/2023 18:55:17"
     }
 }
