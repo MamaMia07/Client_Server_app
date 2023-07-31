@@ -145,7 +145,7 @@ class Message():
                 response = {f"username": "can not be empty\nrecipient:"}
                 bm().send_serv_response(clnt_socket, response)
             elif len(recvd_text) > 255:
-                response = {f"text limit is 255 characters\n":"please\
+                response = {f"\ntext limit is 255 characters,":"please\
  abbreviate the text\nmessage content:"}
                 bm().send_serv_response(clnt_socket, response)
             else: break
