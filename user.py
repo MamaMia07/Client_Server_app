@@ -41,11 +41,11 @@ class User():
                             break
                         bm().send_serv_response(clnt_socket, nextmsg)
                     if answ == "n":
-                        bm().send_serv_response(clnt_socket, user_menu)
                         break
-            bm().save_file(path_file, message_box)
             finish = {"All messages are read.": "\n"}
-        except: finish = {"mailbox is empty": "\n"}
+            bm().save_file(path_file, message_box)
+            
+        except: finish = {"There is no message": "\n"}
         finish.update(user_menu)
         bm().send_serv_response(clnt_socket, finish)
 
@@ -77,7 +77,7 @@ class Admin(User):
             new_passw = clnt_socket.recv(1024).decode("utf-8")
             users_list[user_account]["password"] = new_passw
             bm().save_file("admin/users.json", users_list)
-            response = {f"new password for {user_account} saved":"\n"}
+            response = {f"new passwrd for {user_account} saved":"\n"}
         else: response = {"user does not exist":"\n"}
         response.update(user_menu)
         bm().send_serv_response(clnt_socket, response)

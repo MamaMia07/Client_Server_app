@@ -65,10 +65,10 @@ class ClntServCommunication():
                     print(f"{self.logged_in_user.username} logged in as {self.logged_in_user.status}")
                     break
             if data == "exit":
-                print("Connection with {addr[0]} terminated")
+                print(f"Connection with {addr[0]} terminated")
                 break
 
-    def logged_user(self, clnt_socket):
+    def logged_user(self, clnt_socket, addr):
         while True:
             data = clnt_socket.recv(1024).decode("utf-8")
             if data not in self.user_menu: 
@@ -85,7 +85,7 @@ class ClntServCommunication():
             if data == "sent":
                 self.logged_in_user.read_sent_msgs(clnt_socket, self.user_menu, "")
             if data == "exit":
-                print("Connection terminated")
+                print(f"Connection with {addr[0]} terminated")
                 break
    # admin permissions 
             if data in self.serv_info:
@@ -100,4 +100,4 @@ class ClntServCommunication():
     def handle_client(self, clnt_socket, addr):
         with clnt_socket:
             self.user_connection(clnt_socket, addr)
-            self.logged_user(clnt_socket)
+            self.logged_user(clnt_socket, addr)
