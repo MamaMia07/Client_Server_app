@@ -61,7 +61,7 @@ class Admin(User):
     def list_of_users(self, clnt_socket, user_menu):
         users_list = bm().read_from_file("admin/users.json")
         username_list = [key for key in users_list] 
-        response = {"list of users:\n": f"username_list\n"}
+        response = {"list of users:\n": f"{username_list}\n"}
         response.update(user_menu)
         bm().send_serv_response(clnt_socket, response)
 
@@ -194,7 +194,7 @@ class Message():
                         response= {"Message has been sent.":"\n"}
                         response.update(user_menu)
                     else:
-                        response= {"Message was not delivered, ":f"{self.recipient} inbox is full"}
+                        response= {"Message was not delivered, ":f"{self.recipient} inbox is full\n"}
                         response.update(user_menu)
                 else:
                     response = {f"Message not sent.":"\n"}

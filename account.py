@@ -169,6 +169,6 @@ class SignInUser():
             if status == "admin" : user_menu.update(adm_menu)
             response.update(user_menu)
         else:
-            response = {f"Username or password incorrect.":"\n"}
+            response = {f"Username or passwrd incorrect.":"\n"}
             response.update(start_menu)
         bm().send_serv_response(clnt_socket, response)
