@@ -3,17 +3,17 @@
         "sender": "1 admin",
         "recipient": "rewq",
         "text": "wiadomosc 11 testowa do nadawcy i odniorcy",
-        "message read": false,
-		"creation date": "29/07/2023 16:51:58"
+        "message read": true,
+        "creation date": "29/07/2023 16:51:58"
     },
     "22/07/2023 16:51:58": {
         "sender": "2 admin",
         "recipient": "rewq",
         "text": "wiadomosc 22 testowa do nadawcy i odniorcy",
-        "message read": false,
+        "message read": true,
         "creation date": "29/07/2023 16:51:58"
     },
-        "26/07/2023 16:51:58": {
+    "26/07/2023 16:51:58": {
         "sender": "4 admin",
         "recipient": "rewq",
         "text": "wiadomosc 44 testowa do nadawcy i odniorcy",

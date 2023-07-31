@@ -1,4 +1,3 @@
-#import time
 import account 
 import user
 from  tools import BasicMethods as bm
@@ -33,8 +32,7 @@ class ClntServCommunication():
 
     def new_account(self, clnt_socket, start_menu):
         client_registration = account.NewUserRegistration()
-        client_registration.new_user_data_setting(clnt_socket,start)
-        
+        client_registration.new_user_data_setting(clnt_socket,start_menu)
 
     def sign_in(self, clnt_socket, start_menu, user_menu, adm_menu):
          user_signin = account.SignInUser()
@@ -67,9 +65,8 @@ class ClntServCommunication():
                     print(f"{self.logged_in_user.username} logged in as {self.logged_in_user.status}")
                     break
             if data == "exit":
-                print("Connection terminated")
+                print("Connection with {addr[0]} terminated")
                 break
-
 
     def logged_user(self, clnt_socket):
         while True:

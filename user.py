@@ -1,4 +1,4 @@
-import time, datetime, os
+import time, datetime, shutil
 from  tools import BasicMethods as bm
 
 
@@ -21,7 +21,7 @@ class User():
         self.read_msg(clnt_socket, user_menu, file, read_msg_stat)
 
     def read_msg(self, clnt_socket, user_menu, file, read_msg_stat):
-        path_file = self.path + file #"received_msgs.json"
+        path_file = self.path + file 
         try:
             message_box = bm().read_from_file(path_file)
             for key in message_box:
@@ -50,19 +50,7 @@ class User():
         bm().send_serv_response(clnt_socket, finish)
 
 
-
-
 class Admin(User):
-##    def __init__(self, username, status ="admin"):
-##        self.username = username
-##        self.status = status
-##        self.path = f"users/{self.username}/"
-
-##                        {"users": " : list users",
-##                          "pass": " : change user's passwrd",
-##                           "delete": " : delete user's account"
-##                          }
-
     def send_serv_info(self, clnt_socket, data, serv_start, ver, user_menu):
         server_life = time.time() - serv_start
         serv_info = {"info": {"server v.:": f"{ver}\n"},
@@ -70,7 +58,6 @@ class Admin(User):
         resp = {**serv_info[data], ** user_menu}
         bm().send_serv_response(clnt_socket, resp)
  
-
     def list_of_users(self, clnt_socket, user_menu):
         users_list = bm().read_from_file("admin/users.json")
         username_list = [key for key in users_list] 
@@ -78,16 +65,12 @@ class Admin(User):
         response.update(user_menu)
         bm().send_serv_response(clnt_socket, response)
 
-
-
-## DEKORATORY!!!!! na poczatek i koniec funkcji
     def change_password(self, clnt_socket, user_menu):
         users_list = bm().read_from_file("admin/users.json")
-        response = {"Change user's passwor:":"",
+        response = {"Change user's passwrd:":"",
                     "enter username:" : ""} 
         bm().send_serv_response(clnt_socket, response)
         user_account = clnt_socket.recv(1024).decode("utf-8")
-# TO w dekorator ---------------
         if user_account in users_list:
             response = {"enter new user's password:":"\n"}
             bm().send_serv_response(clnt_socket, response)
@@ -96,7 +79,6 @@ class Admin(User):
             bm().save_file("admin/users.json", users_list)
             response = {f"new password for {user_account} saved":"\n"}
         else: response = {"user does not exist":"\n"}
-# TO w dekorator ---------------
         response.update(user_menu)
         bm().send_serv_response(clnt_socket, response)
 
@@ -106,24 +88,16 @@ class Admin(User):
                     "enter username:" : ""} 
         bm().send_serv_response(clnt_socket, response)
         user_account = clnt_socket.recv(1024).decode("utf-8")
-# TO w dekorator ---------------
         if user_account in users_list:
-            # ZMIENIC NA KASOWANIE NIEPUSTEGO KATALOGU!!!!
             del users_list[user_account]
             bm().save_file("admin/users.json", users_list)
-            parent_path = "users/"
-            path = os.path.join(parent_path, user_account)
-            os.rmdir(path)
-            response = {f"{user_account} removed.":"\n"}
-            
+            path = "users/" + user_account
+            shutil.rmtree(path)
+            response = {f"account {user_account} removed.":"\n"}
         else: response = {"user does not exist":"\n"}
-# TO w dekorator ---------------
         response.update(user_menu)
         bm().send_serv_response(clnt_socket, response)
 
-
-
-##===============================================
 
 class Message():
     def __init__(self, sender):
@@ -149,8 +123,6 @@ class Message():
 
     def enter_recipient(self,clnt_socket):
         users_list = bm().read_from_file("admin/users.json")
-##        users_list = [key for key in users]
-##        print(users_list)
         while True:
             recvd_recipient = clnt_socket.recv(1024).decode("utf-8")
             recvd_recipient = recvd_recipient.lower().strip()
@@ -198,19 +170,13 @@ class Message():
         except: msg_list = new_msg
         bm().save_file(file_path, msg_list)
 
-
-
     def create_new_message(self, clnt_socket, user_menu):
         response = {"\nCreating new message":"\nenter the message recipier:"} 
         bm().send_serv_response(clnt_socket, response)
         self.set_recipient(clnt_socket)
-        #print(f"zapisane odbiorca: {self.recipient}")
-
         response= {"message content:":""}
         bm().send_serv_response(clnt_socket, response)
         self.set_text(clnt_socket)
-        #print(f"zapisana tresc wiadomości:\n {self.text}")
-
 
     def send_new_msg(self, clnt_socket, user_menu):
         self.create_new_message(clnt_socket, user_menu)
@@ -235,4 +201,3 @@ class Message():
                     response.update(user_menu)
                 bm().send_serv_response(clnt_socket, response)
                 break
-

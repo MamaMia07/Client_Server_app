@@ -32,7 +32,6 @@ class Account():
 
 
 
-
 class NewUserRegistration():
     def __init__(self):
         self.new_account = Account()
@@ -52,7 +51,7 @@ class NewUserRegistration():
         users_list = bm().read_from_file("admin/users.json")
         while True:
             recvd_usernm = clnt_socket.recv(1024).decode("utf-8")
-            recvd_usernm = data.lower().strip()
+            recvd_usernm = recvd_usernm.lower().strip()
             if recvd_usernm in users_list : 
                 response = {f"username {recvd_usernm}": "already exists\nusername:"}
                 bm().send_serv_response(clnt_socket, response)
@@ -111,21 +110,17 @@ class NewUserRegistration():
 
         accepted_name = self.insert_name(clnt_socket)
         self.new_account.set_name(accepted_name)
-        print(f"zapisane imie użytkownika: {self.new_account.name}")
 
         response= {"username:":""}
         bm().send_serv_response(clnt_socket, response)
         
         accepted_username = self.insert_username(clnt_socket)
         self.new_account.set_username(accepted_username)
-        print(f"zapisana nazwa użytkownika: {self.new_account.username}")
 
         accepted_pass = self.insert_password(clnt_socket)
         self.new_account.set_password(accepted_pass)
-        print(f"zapisane haslo użytkownika: {self.new_account.password}")
 
         confirmation = self.confirm_account(clnt_socket)
-        print(confirmation)
         if confirmation:
             self.save_new_account()
             bm().create_users_dir(self.new_account.username)
@@ -153,7 +148,6 @@ class SignInUser():
             find_pass = users_list[name]["password"]
         except: return False
         return passw == users_list[name]["password"]
-           
 
     def sign_in_user(self, clnt_socket, start_menu, user_menu, adm_menu):
         users_list = bm().read_from_file("admin/users.json")

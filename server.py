@@ -13,25 +13,24 @@ class ServInit():
 
 
 serv_init = ServInit()
-clnt_serv = ClntServCommunication(serv_init.start, serv_init.version)
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server:
     server.bind((serv_init.HOST, serv_init.PORT))
     server.listen()
     print("Listening...")
 
-    users =[]  # usuwanie z listy po disconnected!!!
-
+    users =[] 
+    threads = []
     while True:
         clnt_conn_socket, address = server.accept()
+        clnt_serv = ClntServCommunication(serv_init.start, serv_init.version)
         users.append(clnt_conn_socket)
         print(len(users)) 
 
         thread = threading.Thread(target = clnt_serv.handle_client, args =(clnt_conn_socket, address))
-        thread.start()
-##        n = len(threads)
-##        threads.append(t)
-##        threads[n].start()
+        n = len(threads)
+        threads.append(thread)
+        threads[n].start()
 
         
         

@@ -3,50 +3,8 @@
         "status": "admin",
         "username": "admin",
         "password": "6b4a1673b225e8bf5f093b91be8c864427df32ca41b17cc0b82112b8f0185e41",
-        "name": "MamaMia07",
+        "name": "CienkiAdmin",
         "creation date": "20/07/2023 15:00:36"
-    },
-    "test": {
-        "status": "user",
-        "username": "test",
-        "password": "dupa2",
-        "name": "NoName",
-        "creation date": "20/07/2023 15:00:36"
-    },
-    "secondtest": {
-        "status": "user",
-        "username": "secondtest",
-        "password": "dupa3",
-        "name": "SecretName",
-        "creation date": "20/07/2023 16:30:20"
-    },
-    "jola": {
-        "status": "user",
-        "username": "jola",
-        "password": "6b4a1673b225e8bf5f093b91be8c864427df32ca41b17cc0b82112b8f0185e41",
-        "name": "Jolka",
-        "creation date": "26/07/2023 23:36:45"
-    },
-    "kasia": {
-        "status": "user",
-        "username": "kasia",
-        "password": "6b4a1673b225e8bf5f093b91be8c864427df32ca41b17cc0b82112b8f0185e41",
-        "name": "kasia",
-        "creation date": "27/07/2023 00:10:42"
-    },
-    "tola": {
-        "status": "user",
-        "username": "tola",
-        "password": "6b4a1673b225e8bf5f093b91be8c864427df32ca41b17cc0b82112b8f0185e41",
-        "name": "tola",
-        "creation date": "27/07/2023 00:20:02"
-    },
-    "zosia": {
-        "status": "user",
-        "username": "zosia",
-        "password": "wwww",
-        "name": "zosia",
-        "creation date": "27/07/2023 00:54:08"
     },
     "rewq": {
         "status": "user",
@@ -54,26 +12,5 @@
         "password": "6b4a1673b225e8bf5f093b91be8c864427df32ca41b17cc0b82112b8f0185e41",
         "name": "dddd",
         "creation date": "27/07/2023 21:00:24"
-    },
-    "rrrr": {
-        "status": "user",
-        "username": "rrrr",
-        "password": "4209fcf0702262840e93f40abf4df012722838494df760ff04aa1ce529a86f16",
-        "name": "eeee",
-        "creation date": "27/07/2023 23:04:28"
-    },
-    "qqqq": {
-        "status": "user",
-        "username": "qqqq",
-        "password": "6b4a1673b225e8bf5f093b91be8c864427df32ca41b17cc0b82112b8f0185e41",
-        "name": "wrona",
-        "creation date": "28/07/2023 00:31:40"
-    },
-    "rree": {
-        "status": "user",
-        "username": "rree",
-        "password": "6b4a1673b225e8bf5f093b91be8c864427df32ca41b17cc0b82112b8f0185e41",
-        "name": "rrrr",
-        "creation date": "28/07/2023 01:03:15"
     }
 }
