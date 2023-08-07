@@ -34,10 +34,33 @@ class ClntServCommunication():
         client_registration = account.NewUserRegistration()
         client_registration.new_user_data_setting(clnt_socket,start_menu)
 
-    def sign_in(self, clnt_socket, start_menu, user_menu, adm_menu):
-         user_signin = account.SignInUser()
-         user_signin.sign_in_user(clnt_socket, start_menu, user_menu, adm_menu)
-         return user_signin
+    def get_user_data(self, clnt_socket): #, start_menu, user_menu, adm_menu):
+       # user_signin = account.SignInUser()
+##        user_signin.sign_in_user(clnt_socket, start_menu, user_menu, adm_menu)
+
+        response = {"username:":""} 
+        bm().send_serv_response(clnt_socket, response)
+        recvd_username = clnt_socket.recv(1024).decode("utf-8")
+
+        response = {"password:":""} 
+        bm().send_serv_response(clnt_socket, response)
+        recvd_password = clnt_socket.recv(1024).decode("utf-8")
+        recvd_password = bm().code_password(recvd_password)
+        return (recvd_username, recvd_password)
+
+    def log_in_info(self, logged_in, status, username):
+        if logged_in:
+            response = {f"User {username}":"is logged in\n"}
+            if status == "admin" :
+                #self.user_menu.update(self.adm_menu)
+                self.user_menu =  {**self.user_menu , **self.admin_menu}
+            response.update(self.user_menu)
+        else:
+            response = {f"Username or passwrd incorrect.":"\n"}
+            response.update(self.start_menu)
+        return response
+
+
 
     def user_connection(self, clnt_socket, addr):
         print(f"Connected with {addr[0]}")
@@ -54,14 +77,19 @@ class ClntServCommunication():
                 self.new_account(clnt_socket, self.start_menu)
                 data = clnt_socket.recv(1024).decode("utf-8")
             if data == "sign":
-                sign_in = self.sign_in(clnt_socket, self.start_menu, self.user_menu, self.admin_menu)
-                if sign_in.status == "user":
-                    self.logged_in_user = user.User(sign_in.username, sign_in.status)
+                user_in = account.SignInUser()
+                recvd_username, recvd_password = self.get_user_data(clnt_socket)
+                user_in.sign_in_user(recvd_username, recvd_password)
+                response = self.log_in_info(user_in.logged_in, user_in.status, user_in.username)
+                #sign_in = self.sign_in(clnt_socket, self.start_menu, self.user_menu, self.admin_menu)
+                bm().send_serv_response(clnt_socket, response)
+                if user_in.status == "user":
+                    self.logged_in_user = user.User(user_in.username, user_in.status)
                     print(f"{self.logged_in_user.username} logged in as {self.logged_in_user.status}")
                     break
-                elif sign_in.status == "admin":
-                    self.user_menu =  {**self.user_menu , **self.admin_menu}
-                    self.logged_in_user = user.Admin(sign_in.username, sign_in.status)
+                elif user_in.status == "admin":
+                    #self.user_menu =  {**self.user_menu , **self.admin_menu}
+                    self.logged_in_user = user.Admin(user_in.username, user_in.status)
                     print(f"{self.logged_in_user.username} logged in as {self.logged_in_user.status}")
                     break
             if data == "exit":

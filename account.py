@@ -137,6 +137,7 @@ class SignInUser():
     def __init__(self): 
         self.username = ""
         self.status = ""
+        self.logged_in = False
 
     def check_user(self, name):
         users_list = bm().read_from_file("admin/users.json")
@@ -149,26 +150,28 @@ class SignInUser():
         except: return False
         return passw == users_list[name]["password"]
 
-    def sign_in_user(self, clnt_socket, start_menu, user_menu, adm_menu):
+    def sign_in_user(self, recvd_username, recvd_password):
         users_list = bm().read_from_file("admin/users.json")
-        response = {"username:":""} 
-        bm().send_serv_response(clnt_socket, response)
-        recvd_username = clnt_socket.recv(1024).decode("utf-8")
-
-        response = {"password:":""} 
-        bm().send_serv_response(clnt_socket, response)
-        recvd_password = clnt_socket.recv(1024).decode("utf-8")
-        recvd_password = bm().code_password(recvd_password)
-
+##        response = {"username:":""} 
+##        bm().send_serv_response(clnt_socket, response)
+##        recvd_username = clnt_socket.recv(1024).decode("utf-8")
+##
+##        response = {"password:":""} 
+##        bm().send_serv_response(clnt_socket, response)
+##        recvd_password = clnt_socket.recv(1024).decode("utf-8")
+##        recvd_password = bm().code_password(recvd_password)
+        
         if self.check_user(recvd_username) and self.check_password(recvd_username, recvd_password):
             self.username = recvd_username
             self.status = users_list[recvd_username]["status"]
-            username = recvd_username
-            status = users_list[recvd_username]["status"]
-            response = {f"User {self.username}":"is logged in\n"}
-            if status == "admin" : user_menu.update(adm_menu)
-            response.update(user_menu)
-        else:
-            response = {f"Username or passwrd incorrect.":"\n"}
-            response.update(start_menu)
-        bm().send_serv_response(clnt_socket, response)
+            self.logged_in = True
+            #username = recvd_username
+            #status = users_list[recvd_username]["status"]
+##            response = {f"User {self.username}":"is logged in\n"}
+##            if status == "admin" : user_menu.update(adm_menu)
+##            response.update(user_menu)
+        #else:
+       #     response = {f"Username or passwrd incorrect.":"\n"}
+##            response.update(start_menu)
+        return (self.logged_in, self.username, self.status)
+        #bm().send_serv_response(clnt_socket, response)

@@ -20,10 +20,10 @@ class Client():
             
     def querry(self, clntsock, data):
         if "password" in data:
-            request = getpass.getpass(prompt = "> ")
+            querry = getpass.getpass(prompt = "> ")
         else:
-            request = input("> ")
-        return request
+            querry = input("> ")
+        return querry
 
     
 
