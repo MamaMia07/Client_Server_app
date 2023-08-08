@@ -36,40 +36,44 @@ class NewUserRegistration():
     def __init__(self):
         self.new_account = Account()
 
-    def insert_name(self,clnt_socket):
-        while True:
-            recvd_name = clnt_socket.recv(1024).decode("utf-8")
-            if recvd_name == "" :
-                response = {f"name ": "can not be empty"}
-                bm().send_serv_response(clnt_socket, response)
-            else: break
-        return recvd_name
+    def insert_name(self,recvd_name):
+        #while True:
+            #recvd_name = clnt_socket.recv(1024).decode("utf-8")
+        if recvd_name == "" :
+            response = {f"name ": "can not be empty"}
+                #bm().send_serv_response(clnt_socket, response)
+        else:
+            aelf.new_account.set_name(recvd_name)
+            response = True
+    return response
     
-    def insert_username(self,clnt_socket):
+    def insert_username(self,recvd_username):
         forbidden_symb = """`~!@#$%^&*() +={[}}]|\:;"'<,>?/"""
         forbidden = set(forbidden_symb)
         users_list = bm().read_from_file("admin/users.json")
-        while True:
-            recvd_usernm = clnt_socket.recv(1024).decode("utf-8")
-            recvd_usernm = recvd_usernm.lower().strip()
-            if recvd_usernm in users_list : 
-                response = {f"username {recvd_usernm}": "already exists\nusername:"}
-                bm().send_serv_response(clnt_socket, response)
-                continue
-            elif recvd_usernm == "" :
-                response = {f"username ": "can not be empty\nusername:"}
-                bm().send_serv_response(clnt_socket, response)
-                continue
-            elif any(symbol in forbidden for symbol in recvd_usernm):
-                response = {f"username {recvd_usernm} contains invalid char": f"{forbidden}\nusername:"}
-                bm().send_serv_response(clnt_socket, response)
-                continue
-            else: break
-        return recvd_usernm
+        #while True:
+            #recvd_usernm = clnt_socket.recv(1024).decode("utf-8")
+        recvd_username = recvd_usernm.lower().strip()
+        if recvd_usernm in users_list : 
+            response = {f"username {recvd_usernm}": "already exists\nusername:"}
+            #    bm().send_serv_response(clnt_socket, response)
+             #   continue
+        elif recvd_usernm == "" :
+            response = {f"username ": "can not be empty\nusername:"}
+            #    bm().send_serv_response(clnt_socket, response)
+             #   continue
+        elif any(symbol in forbidden for symbol in recvd_usernm):
+            response = {f"username {recvd_usernm} contains invalid char": f"{forbidden}\nusername:"}
+            #    bm().send_serv_response(clnt_socket, response)
+             #   continue
+        else:
+            response = True
+            self.new_account.set_username(recvd_username)
+        return response
 
     def insert_password(self, clnt_socket):
-        response = {"password:":""} 
-        bm().send_serv_response(clnt_socket, response)
+##        response = {"password:":""} 
+##        bm().send_serv_response(clnt_socket, response)
         while True:
             pass1 = clnt_socket.recv(1024).decode("utf-8")
             if len(pass1) < 4:
@@ -104,32 +108,32 @@ class NewUserRegistration():
         users_list.update(new_acc)
         bm().save_file("admin/users.json", users_list)
 
-    def new_user_data_setting(self, clnt_socket, menu):
-        response = {"Creating new account":"\nenter your name:"} 
-        bm().send_serv_response(clnt_socket, response)
-
-        accepted_name = self.insert_name(clnt_socket)
-        self.new_account.set_name(accepted_name)
-
-        response= {"username:":""}
-        bm().send_serv_response(clnt_socket, response)
-        
-        accepted_username = self.insert_username(clnt_socket)
-        self.new_account.set_username(accepted_username)
-
-        accepted_pass = self.insert_password(clnt_socket)
-        self.new_account.set_password(accepted_pass)
-
-        confirmation = self.confirm_account(clnt_socket)
-        if confirmation:
-            self.save_new_account()
-            bm().create_users_dir(self.new_account.username)
-            response = {f"Account for {self.new_account.username} created.":"\n"}
-            response.update(menu)
-        else:
-            response = {f"New account not approved.":"\n"}
-            response.update(menu)
-        bm().send_serv_response(clnt_socket, response)
+##    def new_user_data_setting(self, clnt_socket, menu):
+##        response = {"Creating new account":"\nenter your name:"} 
+##        bm().send_serv_response(clnt_socket, response)
+##
+##        accepted_name = self.insert_name(clnt_socket)
+##        self.new_account.set_name(accepted_name)
+##
+##        response= {"username:":""}
+##        bm().send_serv_response(clnt_socket, response)
+##        
+##        accepted_username = self.insert_username(clnt_socket)
+##        self.new_account.set_username(accepted_username)
+##
+##        accepted_pass = self.insert_password(clnt_socket)
+##        self.new_account.set_password(accepted_pass)
+##
+##        confirmation = self.confirm_account(clnt_socket)
+##        if confirmation:
+##            self.save_new_account()
+##            bm().create_users_dir(self.new_account.username)
+##            response = {f"Account for {self.new_account.username} created.":"\n"}
+##            response.update(menu)
+##        else:
+##            response = {f"New account not approved.":"\n"}
+##            response.update(menu)
+##        bm().send_serv_response(clnt_socket, response)
 
 
 
@@ -151,6 +155,7 @@ class SignInUser():
         return passw == users_list[name]["password"]
 
     def sign_in_user(self, recvd_username, recvd_password):
+        recvd_username = recvd_username.lower().strip()
         users_list = bm().read_from_file("admin/users.json")
 ##        response = {"username:":""} 
 ##        bm().send_serv_response(clnt_socket, response)

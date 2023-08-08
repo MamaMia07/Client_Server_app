@@ -30,9 +30,60 @@ class ClntServCommunication():
 
         self.admin_menu = {**self.admin_menu, **self.serv_info}
 
-    def new_account(self, clnt_socket, start_menu):
+##    def new_account(self, clnt_socket, start_menu):
+##        client_registration = account.NewUserRegistration()
+##        client_registration.new_user_data_setting(clnt_socket,start_menu)
+##
+
+
+
+    def new_user_data_setting(self, clnt_socket):
         client_registration = account.NewUserRegistration()
-        client_registration.new_user_data_setting(clnt_socket,start_menu)
+        response = {"Creating new account":"\nenter your name:"} 
+        bm().send_serv_response(clnt_socket, response)
+        while True:
+            recvd_name = clnt_socket.recv(1024).decode("utf-8")
+            response = client_registration.insert_name(recvd_name)
+            if response == True:
+                break
+            else: bm().send_serv_response(clnt_socket, response)
+
+
+
+        while True:
+            response= {"username:":""}
+            bm().send_serv_response(clnt_socket, response)
+            recvd_username = clnt_socket.recv(1024).decode("utf-8")
+        #accepted_username = self.insert_username(clnt_socket)
+        
+            response = client_registration.insert_username(recvd_username)
+            if response == True:
+                break
+            else: bm().send_serv_response(clnt_socket, response)
+
+
+#DOKONCZ!!!!
+        response = {"password:":""} 
+        bm().send_serv_response(clnt_socket, response)
+        #accepted_pass = self.insert_password(clnt_socket)
+        #self.new_account.set_password(accepted_pass)
+
+        confirmation = self.confirm_account(clnt_socket)
+        if confirmation:
+            self.save_new_account()
+            bm().create_users_dir(self.new_account.username)
+            response = {f"Account for {self.new_account.username} created.":"\n"}
+            response.update(menu)
+        else:
+            response = {f"New account not approved.":"\n"}
+            response.update(menu)
+        bm().send_serv_response(clnt_socket, response)
+
+
+
+
+
+
 
     def get_user_data(self, clnt_socket): #, start_menu, user_menu, adm_menu):
        # user_signin = account.SignInUser()
@@ -76,6 +127,8 @@ class ClntServCommunication():
             if data == "new":
                 self.new_account(clnt_socket, self.start_menu)
                 data = clnt_socket.recv(1024).decode("utf-8")
+
+
             if data == "sign":
                 user_in = account.SignInUser()
                 recvd_username, recvd_password = self.get_user_data(clnt_socket)
