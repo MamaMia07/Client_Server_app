@@ -1,6 +1,6 @@
 import account 
-import user
-from  tools import BasicMethods as bm
+#import user
+#from  tools import BasicMethods as bm
 
 
 class ClntServCommunication():
@@ -34,50 +34,66 @@ class ClntServCommunication():
 ##        client_registration = account.NewUserRegistration()
 ##        client_registration.new_user_data_setting(clnt_socket,start_menu)
 ##
-
+    
+    def send_serv_response(clnt_socket, resp):
+        response= json.dumps(resp, indent = 4)
+        clnt_socket.sendall(response.encode("utf-8"))
 
 
     def new_user_data_setting(self, clnt_socket):
         client_registration = account.NewUserRegistration()
         response = {"Creating new account":"\nenter your name:"} 
-        bm().send_serv_response(clnt_socket, response)
+        self.send_serv_response(clnt_socket, response)
         while True:
             recvd_name = clnt_socket.recv(1024).decode("utf-8")
             response = client_registration.insert_name(recvd_name)
             if response == True:
                 break
-            else: bm().send_serv_response(clnt_socket, response)
-
-
+            else: self.send_serv_response(clnt_socket, response)
 
         while True:
             response= {"username:":""}
-            bm().send_serv_response(clnt_socket, response)
+            self.send_serv_response(clnt_socket, response)
             recvd_username = clnt_socket.recv(1024).decode("utf-8")
-        #accepted_username = self.insert_username(clnt_socket)
-        
             response = client_registration.insert_username(recvd_username)
             if response == True:
                 break
-            else: bm().send_serv_response(clnt_socket, response)
+            else: self.send_serv_response(clnt_socket, response)
 
-
-#DOKONCZ!!!!
-        response = {"password:":""} 
-        bm().send_serv_response(clnt_socket, response)
+        while True:
+            response = {"password:":""} 
+            self.send_serv_response(clnt_socket, response)
+            recvd_pass1 = clnt_socket.recv(1024).decode("utf-8")
+            response = {"repeat password:":""}
+            self.send_serv_response(clnt_socket, response)
+            recvd_pass2 = clnt_socket.recv(1024).decode("utf-8")
+            response = client_registration.insert_password(recvd_pass1, recvd_pass2)
+            if response == True:
+                break
+            else: self.send_serv_response(clnt_socket, response)
         #accepted_pass = self.insert_password(clnt_socket)
         #self.new_account.set_password(accepted_pass)
+        while True:
+            response = {"confirm the entered data":"y/n ?"} 
+            self.send_serv_response(clnt_socket, response)
+            recvd_confirm = clnt_socket.recv(1024).decode("utf-8")
+            response = client_registration.confirm_account(recvd_confirm)
+            if response != False:
+                response.update(self.start_menu)
+                self.send_serv_response(clnt_socket, response)
+                break
+            else: continue 
 
-        confirmation = self.confirm_account(clnt_socket)
-        if confirmation:
-            self.save_new_account()
-            bm().create_users_dir(self.new_account.username)
-            response = {f"Account for {self.new_account.username} created.":"\n"}
-            response.update(menu)
-        else:
-            response = {f"New account not approved.":"\n"}
-            response.update(menu)
-        bm().send_serv_response(clnt_socket, response)
+##        confirmation = self.confirm_account(clnt_socket)
+##        if confirmation:
+##            self.save_new_account()
+##            bm().create_users_dir(self.new_account.username)
+##            response = {f"Account for {self.new_account.username} created.":"\n"}
+##            response.update(menu)
+##        else:
+##            response = {f"New account not approved.":"\n"}
+##            response.update(menu)
+##        bm().send_serv_response(clnt_socket, response)
 
 
 
@@ -90,16 +106,16 @@ class ClntServCommunication():
 ##        user_signin.sign_in_user(clnt_socket, start_menu, user_menu, adm_menu)
 
         response = {"username:":""} 
-        bm().send_serv_response(clnt_socket, response)
+        self.send_serv_response(clnt_socket, response)
         recvd_username = clnt_socket.recv(1024).decode("utf-8")
 
         response = {"password:":""} 
-        bm().send_serv_response(clnt_socket, response)
+        self.send_serv_response(clnt_socket, response)
         recvd_password = clnt_socket.recv(1024).decode("utf-8")
         recvd_password = bm().code_password(recvd_password)
         return (recvd_username, recvd_password)
 
-    def log_in_info(self, logged_in, status, username):
+    def log_in_info(self, logged_in, username, status):
         if logged_in:
             response = {f"User {username}":"is logged in\n"}
             if status == "admin" :
@@ -117,34 +133,40 @@ class ClntServCommunication():
         print(f"Connected with {addr[0]}")
         welcome = {"Welcome to my tiny server! :)":""}
         response =  {**welcome , **self.start_menu}
-        bm().send_serv_response(clnt_socket, response)
+        self.send_serv_response(clnt_socket, response)
         while True:
             data = clnt_socket.recv(1024).decode("utf-8")
             if data not in  self.start_menu:
                 response = {"bad command:": data}
-                bm().send_serv_response(clnt_socket, response)
+                self.send_serv_response(clnt_socket, response)
                 continue
             if data == "new":
-                self.new_account(clnt_socket, self.start_menu)
-                data = clnt_socket.recv(1024).decode("utf-8")
-
+##                self.new_account(clnt_socket, self.start_menu)
+##                data = clnt_socket.recv(1024).decode("utf-8")
+                self.new_user_data_setting(clnt_socket)
 
             if data == "sign":
-                user_in = account.SignInUser()
                 recvd_username, recvd_password = self.get_user_data(clnt_socket)
+
+                user_in = account.SignInUser()
                 user_in.sign_in_user(recvd_username, recvd_password)
-                response = self.log_in_info(user_in.logged_in, user_in.status, user_in.username)
+                response = self.log_in_info(user_in.logged_in, user_in.username, user_in.status,)
                 #sign_in = self.sign_in(clnt_socket, self.start_menu, self.user_menu, self.admin_menu)
-                bm().send_serv_response(clnt_socket, response)
-                if user_in.status == "user":
-                    self.logged_in_user = user.User(user_in.username, user_in.status)
-                    print(f"{self.logged_in_user.username} logged in as {self.logged_in_user.status}")
+                self.send_serv_response(clnt_socket, response)
+                if user_in.logged_in:
+                    self.logged_in_user = user_in.logged_in_user()
                     break
-                elif user_in.status == "admin":
-                    #self.user_menu =  {**self.user_menu , **self.admin_menu}
-                    self.logged_in_user = user.Admin(user_in.username, user_in.status)
-                    print(f"{self.logged_in_user.username} logged in as {self.logged_in_user.status}")
-                    break
+                
+##                if user_in.status == "user":
+##                    self.logged_in_user = user.User(user_in.username, user_in.status)
+##                    print(f"{self.logged_in_user.username} logged in as {self.logged_in_user.status}")
+##                    break
+##                elif user_in.status == "admin":
+##                    #self.user_menu =  {**self.user_menu , **self.admin_menu}
+##                    self.logged_in_user = user.Admin(user_in.username, user_in.status)
+##                    print(f"{self.logged_in_user.username} logged in as {self.logged_in_user.status}")
+##                    break
+
             if data == "exit":
                 print(f"Connection with {addr[0]} terminated")
                 break
@@ -155,7 +177,7 @@ class ClntServCommunication():
             if data not in self.user_menu: 
                 response = {"bad command:": data}
                 print(response)
-                bm().send_serv_response(clnt_socket, response)
+                self.send_serv_response(clnt_socket, response)
                 continue
             if data == "new":
                 self.logged_in_user.send_msg(clnt_socket, self.user_menu)

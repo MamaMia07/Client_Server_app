@@ -1,5 +1,6 @@
 import datetime
 from  tools import BasicMethods as bm
+import user
 
 
 class Account():
@@ -71,36 +72,42 @@ class NewUserRegistration():
             self.new_account.set_username(recvd_username)
         return response
 
-    def insert_password(self, clnt_socket):
+    def insert_password(self, recvd_pass, recvd_pass):
 ##        response = {"password:":""} 
 ##        bm().send_serv_response(clnt_socket, response)
-        while True:
-            pass1 = clnt_socket.recv(1024).decode("utf-8")
-            if len(pass1) < 4:
-                response = {"password should have at least":"4 characters\npassword:"}
-                bm().send_serv_response(clnt_socket, response)
-                continue
-            response = {"repeat password:":""}
-            bm().send_serv_response(clnt_socket, response)
-            pass2 = clnt_socket.recv(1024).decode("utf-8")
-            if pass1 != pass2:
-                response = {"two different passwords have been entered":"\npassword:"}
-                bm().send_serv_response(clnt_socket, response)
-                continue
-            else: break
-        return pass1
+        #while True:
+            #pass1 = clnt_socket.recv(1024).decode("utf-8")
+        if len(pass1) < 4:
+            response = {"password should have at least":"4 characters\npassword:"}
+                #bm().send_serv_response(clnt_socket, response)
+                #continue
+##            response = {"repeat password:":""}
+##            bm().send_serv_response(clnt_socket, response)
+##            pass2 = clnt_socket.recv(1024).decode("utf-8")
+        elif pass1 != pass2:
+            response = {"two different passwords have been entered":"\npassword:"}
+               # bm().send_serv_response(clnt_socket, response)
+               # continue
+        else:
+            response = True
+            self.new_account.set_password(recvd_pass)
+        return response
 
-    def confirm_account(self, clnt_socket):
-        confirm = True
-        while True:
-            response = {"confirm the entered data":"y/n ?"} 
-            bm().send_serv_response(clnt_socket, response)
-            confirmation = clnt_socket.recv(1024).decode("utf-8")
-            if confirmation  in ["y", "n"]:
-                break
-            else: continue
-        if confirmation == "n": confirm = False
-        return confirm
+    def confirm_account(self,confirmation):
+        #confirm = True
+##        while True:
+##            response = {"confirm the entered data":"y/n ?"} 
+##            bm().send_serv_response(clnt_socket, response)
+##            confirmation = clnt_socket.recv(1024).decode("utf-8")
+        if confirmation  in ["y", "n"]:
+            if confirmation == "y":
+                self.save_new_account()
+                response = {f"Account for {self.new_account.username} created.":"\n"}
+            else:
+                response = {f"New account not approved.":"\n"}
+else    else:
+            response =  False
+        return response
 
     def save_new_account(self):
         users_list = bm().read_from_file("admin/users.json")
@@ -178,5 +185,16 @@ class SignInUser():
         #else:
        #     response = {f"Username or passwrd incorrect.":"\n"}
 ##            response.update(start_menu)
-        return (self.logged_in, self.username, self.status)
+        
+       return (self.logged_in, self.username, self.status)
         #bm().send_serv_response(clnt_socket, response)
+
+     def logged_in_user(self):
+        if self.status == "user":
+            logged_in_user = user.User(self.username, self.status)
+            print(f"{self.logged_in_user.username} logged in as {self.logged_in_user.status}")
+        elif self.status == "admin":
+                    #self.user_menu =  {**self.user_menu , **self.admin_menu}
+            logged_in_user = user.Admin(user_in.username, user_in.status)
+            print(f"{self.logged_in_user.username} logged in as {self.logged_in_user.status}")
+       return logged_in_user

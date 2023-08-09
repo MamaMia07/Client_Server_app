@@ -4,6 +4,7 @@ class BasicMethods():
     def __init__(self):
         pass
 
+    # WYRZUCIC
     @staticmethod
     def send_serv_response(clnt_socket, resp):
         response= json.dumps(resp, indent = 4)
