@@ -79,15 +79,19 @@ class ClntServCommunication():
                 break
         
 
-    def get_username_and_password(self, clnt_socket): 
-        response = {"username:":""} 
+    def get_username(self, clnt_socket, response = {"username:":""} ): 
+        #response = {"username:":""} 
         self.send_serv_response(clnt_socket, response)
         recvd_username = clnt_socket.recv(1024).decode("utf-8")
-        response = {"password:":""} 
+        return recvd_username
+
+
+    def get_password(self, clnt_socket, response = {"password:":""}): 
+        #response = {"password:":""} 
         self.send_serv_response(clnt_socket, response)
         recvd_password = clnt_socket.recv(1024).decode("utf-8")
         recvd_password = bm().code_password(recvd_password)
-        return (recvd_username, recvd_password)
+        return recvd_password
 
 
     def set_logged_user_permissions(self, recvd_username, recvd_password):
@@ -105,7 +109,8 @@ class ClntServCommunication():
         return response
 
     def sign_in_user(self, clnt_socket):
-        recvd_username, recvd_password = self.get_username_and_password(clnt_socket)
+        recvd_username = self.get_username(clnt_socket)
+        recvd_password = self.get_password(clnt_socket)
         response = self.set_logged_user_permissions(recvd_username, recvd_password)
         self.send_serv_response(clnt_socket, response)
 
@@ -135,7 +140,6 @@ class ClntServCommunication():
 #=============logged user============================
 
     def read_messages(self, clnt_socket, messages):
-        #messages = self.logged_in_user.read_received_msgs()
         msg_nmb = 0
         for key in messages:
             response = messages[key]
@@ -167,52 +171,64 @@ class ClntServCommunication():
         messages = self.logged_in_user.read_sent_msgs()
         self.read_messages(clnt_socket, messages)
 
-
-
-
-#=======DOKONCZ!!
-    def message_recipient(self, clnt_socket):
-        #rec = {"recipienr username":""}
-        while True:
-            #bm().send_serv_response(clnt_socket, response)
-            recvd_recipient = clnt_socket.recv(1024).decode("utf-8")
-            response = self.logged_in_user.send_msg(recvd_recipient)
-            if response = True:
-                break
-            #response.update(rec)
-        return recvd_recipient
-
-
-    def message_content(self, clnt_socket):
-         while True:
-            recvd_text = clnt_socket.recv(1024).decode("utf-8")
-            response = self.logged_in_user.enter_msg_text(recvd_text)
-            if response = True:
-                break
-            #response.update(rec)
-        return recvd_text
-
-
-
-
-#====DOKONCZYC==================
     def create_new_message(self, clnt_socket):
+        new_msg = self.logged_in_user.send_msg()
+
         response = {"\nCreating new message":"\nenter the message recipier:"} 
         bm().send_serv_response(clnt_socket, response)
-        recvd_recipient = self.message_recipient(clnt_socket)
+        while True:
+            recvd_recipient = clnt_socket.recv(1024).decode("utf-8")
+            response = new_msg.enter_recipient(recvd_recipient)
+            if response == True:
+                break
+            bm().send_serv_response(clnt_socket, response)
+
         response= {"message content:":""}
         bm().send_serv_response(clnt_socket, response)
-        recvd_text = self.message_content(clnt_socket)
-
         while True:
-            response = {"Send the message?":"y/n ?"} 
+            recvd_text = clnt_socket.recv(1024).decode("utf-8")
+            response = new_msg.enter_msg_text(recvd_text)
+            if response == True:
+                break
             bm().send_serv_response(clnt_socket, response)
+        response = {"Send the message?":"y/n ?"} 
+        bm().send_serv_response(clnt_socket, response)
+        while True:
             confirm = clnt_socket.recv(1024).decode("utf-8")
             if confirm  in ["y", "n"]:
-                response =  self.logged_in_user.send_new_msg(confirm)
+                response = new_msg.send_new_msg(confirm)
+                response.update(self.user_menu)
+                bm().send_serv_response(clnt_socket, response)
+                break
 
 
+    def get_users_list(self, clnt_socket):
+        response = self.logged_in_user.list_of_users()
+        response.update(self.user_menu)
+        bm().send_serv_response(clnt_socket, response)
 
+
+    def change_users_password(self, clnt_socket):
+        response = {"Change user's passwrd:":"",
+                "enter username:" : ""}
+        recvd_username = self.get_username(clnt_socket, response)
+##            bm().send_serv_response(clnt_socket, response)
+##            recvd_user_account = clnt_socket.recv(1024).decode("utf-8")
+        response = {"enter new user's password:":"\n"}
+        recvd_new_pass = self.get_password(clnt_socket, response)
+
+        response = self.logged_in_user.change_password(recvd_username, recvd_new_pass)
+        response.update(self.user_menu)
+        bm().send_serv_response(clnt_socket, response)
+
+    def delete_users_account(self, clnt_socket):
+        response = {"Deleting user's account:":"",
+                "enter username:" : ""} 
+        recvd_username = self.get_username(clnt_socket, response)
+        response = self.logged_in_user.delete_account(recvd_username)
+        response.update(self.user_menu)
+        bm().send_serv_response(clnt_socket, response)
+  
 # +============ to do klasy Server==========
     def logged_user(self, clnt_socket, addr):
         while True:
@@ -222,33 +238,38 @@ class ClntServCommunication():
                 print(response)
                 self.send_serv_response(clnt_socket, response)
                 continue
-            #poprawic
             if data == "new":
-                #self.logged_in_user.send_msg(clnt_socket, self.user_menu)
-                #self.read_recvd_msgs
-
-
+                self.create_new_message(clnt_socket)
             if data == "read":
                 self.read_new_msgs(clnt_socket)
-
             if data == "mailbox":
                 self.read_all_msgs(clnt_socket)
-
             if data == "sent":
                 self.read_sent_msgs(clnt_socket)
-
             if data == "exit":
                 print(f"Connection with {addr[0]} terminated")
                 break
+
+# POPRAWIC========================
+
    # admin permissions 
             if data in self.serv_info:
-                self.logged_in_user.send_serv_info(clnt_socket, data, self.serv_start,self.version, self.user_menu)
+                response = self.logged_in_user.send_serv_info(data, self.serv_start,self.version)
+                response.update(self.user_menu)
+                bm().send_serv_response(clnt_socket, response)
+                #self.logged_in_user.send_serv_info(clnt_socket, data, self.serv_start,self.version, self.user_menu)
+
             if data == "users":
-                self.logged_in_user.list_of_users(clnt_socket, self.user_menu)
+                #self.logged_in_user.list_of_users(clnt_socket, self.user_menu)
+                self.get_users_list(clnt_socket)
+
             if data == "pass":
-                self.logged_in_user.change_password(clnt_socket, self.user_menu)
+                self.change_users_password(clnt_socket)
+                #self.logged_in_user.change_password(clnt_socket, self.user_menu)
+
             if data == "delete":
-                self.logged_in_user.delete_account(clnt_socket, self.user_menu)
+                self.delete_users_account(clnt_socket)
+                #self.logged_in_user.delete_account(clnt_socket, self.user_menu)
 
     def handle_client(self, clnt_socket, addr):
         with clnt_socket:
