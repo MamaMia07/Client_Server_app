@@ -122,6 +122,6 @@ class SignInUser():
         if self.status == "user":
             logged_in_user = user.User(self.username, self.status)
         elif self.status == "admin":
-            logged_in_user = user.Admin(user_in.username, user_in.status)
+            logged_in_user = user.Admin(self.username, self.status)
         print(f"{self.username} logged in as {self.status}")
         return logged_in_user
