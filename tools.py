@@ -4,12 +4,6 @@ class BasicMethods():
     def __init__(self):
         pass
 
-    # WYRZUCIC
-    @staticmethod
-    def send_serv_response(clnt_socket, resp):
-        response= json.dumps(resp, indent = 4)
-        clnt_socket.sendall(response.encode("utf-8"))
-
     @staticmethod
     def read_from_file(file_path):
         try:
