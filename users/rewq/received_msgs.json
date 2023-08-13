@@ -3,35 +3,35 @@
         "sender": "1 admin",
         "recipient": "rewq",
         "text": " 1. message from admin to rewq",
-        "message read": false,
+        "message read": true,
         "creation date": "29/07/2023 16:51:58"
     },
     "22/07/2023 16:51:58": {
         "sender": "2 admin",
         "recipient": "rewq",
         "text": "2. message from admin to rewq",
-        "message read":  false,
+        "message read": true,
         "creation date": "29/07/2023 16:51:58"
     },
     "24/07/2023 16:51:58": {
         "sender": "3 admin",
         "recipient": "rewq",
         "text": "3. message from admin to rewq",
-        "message read":  false,
+        "message read": true,
         "creation date": "29/07/2023 16:51:58"
     },
     "26/07/2023 16:51:58": {
         "sender": "4 admin",
         "recipient": "rewq",
         "text": "4. message from admin to rewq",
-        "message read":  false,
+        "message read": true,
         "creation date": "29/07/2023 16:51:58"
     },
     "11/07/2023 16:51:58": {
         "sender": "5 admin",
         "recipient": "rewq",
         "text": "5. message from admin to rewq",
-        "message read":  false,
+        "message read": true,
         "creation date": "29/07/2023 16:51:58"
     }
 }

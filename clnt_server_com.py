@@ -200,63 +200,61 @@ class ClntServCommunication():
         bm().send_serv_response(clnt_socket, response)
 
 
+class Server():
+    def __init__(self, start_serv, version):
+        self.scc = ClntServCommunication(start_serv, version)
 
-
-# ========== to do klasy Server=============
     def start_user_connection(self, clnt_socket, addr):
         print(f"Connected with {addr[0]}")
         welcome = {"Welcome to my tiny server! :)":""}
-        response =  {**welcome , **self.start_menu}
-        self.send_serv_response(clnt_socket, response)
+        response =  {**welcome , **self.scc.start_menu}
+        self.scc.send_serv_response(clnt_socket, response)
         while True:
             data = clnt_socket.recv(1024).decode("utf-8")
-            if data not in  self.start_menu:
+            if data not in  self.scc.start_menu:
                 response = {"bad command:": data}
-                self.send_serv_response(clnt_socket, response)
+                self.scc.send_serv_response(clnt_socket, response)
                 continue
             if data == "new":
-               self.new_user_data_setting(clnt_socket)
+               self.scc.new_user_data_setting(clnt_socket)
             if data == "sign":
-                self.sign_in_user(clnt_socket)
-                if self.user_in.logged_in: 
+                self.scc.sign_in_user(clnt_socket)
+                if self.scc.user_in.logged_in: 
                     break
             if data == "exit":
                 print(f"Connection with {addr[0]} terminated")
                 break
 
-
-  
-# +============ to do klasy Server==========
     def logged_user(self, clnt_socket, addr):
         while True:
             data = clnt_socket.recv(1024).decode("utf-8")
-            if data not in self.user_menu: 
+            if data not in self.scc.user_menu: 
                 response = {"bad command:": data}
                 print(response)
-                self.send_serv_response(clnt_socket, response)
+                self.scc.send_serv_response(clnt_socket, response)
                 continue
             if data == "new":
-                self.create_new_message(clnt_socket)
+                self.scc.create_new_message(clnt_socket)
             if data == "read":
-                self.read_new_msgs(clnt_socket)
+                self.scc.read_new_msgs(clnt_socket)
             if data == "mailbox":
-                self.read_all_msgs(clnt_socket)
+                self.scc.read_all_msgs(clnt_socket)
             if data == "sent":
-                self.read_sent_msgs(clnt_socket)
+                self.scc.read_sent_msgs(clnt_socket)
             if data == "exit":
                 print(f"Connection with {addr[0]} terminated")
                 break
    # admin permissions 
-            if data in self.serv_info:
-                response = self.logged_in_user.send_serv_info(data, self.serv_start,self.version)
-                response.update(self.user_menu)
+            if data in self.scc.serv_info:
+                response = self.scc.logged_in_user.send_serv_info(data, self.scc.serv_start,self.scc.version)
+                response.update(self.scc.user_menu)
                 bm().send_serv_response(clnt_socket, response)
             if data == "users":
-                self.get_users_list(clnt_socket)
+                self.scc.get_users_list(clnt_socket)
             if data == "pass":
-                self.change_users_password(clnt_socket)
+                self.scc.change_users_password(clnt_socket)
             if data == "delete":
-                self.delete_users_account(clnt_socket)
+                self.scc.delete_users_account(clnt_socket)
                
 
     def handle_client(self, clnt_socket, addr):
