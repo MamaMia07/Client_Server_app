@@ -36,6 +36,7 @@ class ClntServCommunication():
         response= json.dumps(resp, indent = 4)
         clnt_socket.sendall(response.encode("utf-8"))
 
+    # ============= Sign In User =======================
     def new_user_data_setting(self, clnt_socket):
         client_registration = account.NewUserRegistration()
         response = {"Creating new account":"\nenter your name:"} 
@@ -85,14 +86,12 @@ class ClntServCommunication():
         recvd_username = clnt_socket.recv(1024).decode("utf-8")
         return recvd_username
 
-
     def get_password(self, clnt_socket, response = {"password:":""}): 
         #response = {"password:":""} 
         self.send_serv_response(clnt_socket, response)
         recvd_password = clnt_socket.recv(1024).decode("utf-8")
         recvd_password = bm().code_password(recvd_password)
         return recvd_password
-
 
     def set_logged_user_permissions(self, recvd_username, recvd_password):
         self.user_in = account.SignInUser()
@@ -114,30 +113,7 @@ class ClntServCommunication():
         response = self.set_logged_user_permissions(recvd_username, recvd_password)
         self.send_serv_response(clnt_socket, response)
 
-        
-# ========== to do klasy Server=============
-    def start_user_connection(self, clnt_socket, addr):
-        print(f"Connected with {addr[0]}")
-        welcome = {"Welcome to my tiny server! :)":""}
-        response =  {**welcome , **self.start_menu}
-        self.send_serv_response(clnt_socket, response)
-        while True:
-            data = clnt_socket.recv(1024).decode("utf-8")
-            if data not in  self.start_menu:
-                response = {"bad command:": data}
-                self.send_serv_response(clnt_socket, response)
-                continue
-            if data == "new":
-               self.new_user_data_setting(clnt_socket)
-            if data == "sign":
-                self.sign_in_user(clnt_socket)
-                if self.user_in.logged_in: 
-                    break
-            if data == "exit":
-                print(f"Connection with {addr[0]} terminated")
-                break
-
-#=============logged user============================
+    #============= Logged In User ============================
 
     def read_messages(self, clnt_socket, messages):
         msg_nmb = 0
@@ -173,7 +149,6 @@ class ClntServCommunication():
 
     def create_new_message(self, clnt_socket):
         new_msg = self.logged_in_user.send_msg()
-
         response = {"\nCreating new message":"\nenter the message recipier:"} 
         bm().send_serv_response(clnt_socket, response)
         while True:
@@ -182,7 +157,6 @@ class ClntServCommunication():
             if response == True:
                 break
             bm().send_serv_response(clnt_socket, response)
-
         response= {"message content:":""}
         bm().send_serv_response(clnt_socket, response)
         while True:
@@ -201,19 +175,15 @@ class ClntServCommunication():
                 bm().send_serv_response(clnt_socket, response)
                 break
 
-
     def get_users_list(self, clnt_socket):
         response = self.logged_in_user.list_of_users()
         response.update(self.user_menu)
         bm().send_serv_response(clnt_socket, response)
 
-
     def change_users_password(self, clnt_socket):
         response = {"Change user's passwrd:":"",
                 "enter username:" : ""}
         recvd_username = self.get_username(clnt_socket, response)
-##            bm().send_serv_response(clnt_socket, response)
-##            recvd_user_account = clnt_socket.recv(1024).decode("utf-8")
         response = {"enter new user's password:":"\n"}
         recvd_new_pass = self.get_password(clnt_socket, response)
 
@@ -228,6 +198,33 @@ class ClntServCommunication():
         response = self.logged_in_user.delete_account(recvd_username)
         response.update(self.user_menu)
         bm().send_serv_response(clnt_socket, response)
+
+
+
+
+# ========== to do klasy Server=============
+    def start_user_connection(self, clnt_socket, addr):
+        print(f"Connected with {addr[0]}")
+        welcome = {"Welcome to my tiny server! :)":""}
+        response =  {**welcome , **self.start_menu}
+        self.send_serv_response(clnt_socket, response)
+        while True:
+            data = clnt_socket.recv(1024).decode("utf-8")
+            if data not in  self.start_menu:
+                response = {"bad command:": data}
+                self.send_serv_response(clnt_socket, response)
+                continue
+            if data == "new":
+               self.new_user_data_setting(clnt_socket)
+            if data == "sign":
+                self.sign_in_user(clnt_socket)
+                if self.user_in.logged_in: 
+                    break
+            if data == "exit":
+                print(f"Connection with {addr[0]} terminated")
+                break
+
+
   
 # +============ to do klasy Server==========
     def logged_user(self, clnt_socket, addr):
@@ -249,27 +246,18 @@ class ClntServCommunication():
             if data == "exit":
                 print(f"Connection with {addr[0]} terminated")
                 break
-
-# POPRAWIC========================
-
    # admin permissions 
             if data in self.serv_info:
                 response = self.logged_in_user.send_serv_info(data, self.serv_start,self.version)
                 response.update(self.user_menu)
                 bm().send_serv_response(clnt_socket, response)
-                #self.logged_in_user.send_serv_info(clnt_socket, data, self.serv_start,self.version, self.user_menu)
-
             if data == "users":
-                #self.logged_in_user.list_of_users(clnt_socket, self.user_menu)
                 self.get_users_list(clnt_socket)
-
             if data == "pass":
                 self.change_users_password(clnt_socket)
-                #self.logged_in_user.change_password(clnt_socket, self.user_menu)
-
             if data == "delete":
                 self.delete_users_account(clnt_socket)
-                #self.logged_in_user.delete_account(clnt_socket, self.user_menu)
+               
 
     def handle_client(self, clnt_socket, addr):
         with clnt_socket:

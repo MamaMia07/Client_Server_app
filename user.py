@@ -57,8 +57,6 @@ class Admin(User):
         serv_info = {"info": {"server v.:": f"{ver}\n"},
                          "uptime": {"server uptime:": f"{server_life:.4f}s\n"}}
         return serv_info[data]
-        #resp = {**serv_info[data], ** user_menu}
-        #bm().send_serv_response(clnt_socket, resp)
  
     def list_of_users(self):
         users_list = bm().read_from_file("admin/users.json")
