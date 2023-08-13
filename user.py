@@ -154,9 +154,9 @@ class Message():
                 new_msg = self.set_new_message()
                 self.save_msg(new_msg , self.recipient, "received_msgs.json")
                 self.save_msg(new_msg , self.sender, "sent_msgs.json")
-                response= {"Message has been sent.":"\n"}
+                response= {"Message has been sent.":""}
             else:
                 response= {"Message was not delivered, ":f"{self.recipient} inbox is full\n"}
         else:
-            response = {f"Message not sent.":"\n"}
+            response = {f"Message not sent.":""}
         return response

@@ -75,7 +75,7 @@ class NewUserRegistration():
         if confirmation  in ["y", "n"]:
             if confirmation == "y":
                 self.save_new_account()
-                response = {f"Account for {self.new_account.username} created.":"\n"}
+                response = {f"Account for {self.new_account.username} created.":""}
             else:
                 response = {f"New account not approved.":"\n"}
         else:

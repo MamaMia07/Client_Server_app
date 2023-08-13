@@ -97,13 +97,13 @@ class ClntServCommunication():
         self.user_in = account.SignInUser()
         self.user_in.sign_in_user(recvd_username, recvd_password)
         if self.user_in.logged_in:
-            response = {f"User {recvd_username}":"is logged in\n"}
+            response = {f"User {recvd_username}":"is logged in"}
             self.logged_in_user = self.user_in.logged_in_user()
             if self.user_in.status == "admin" :
                 self.user_menu =  {**self.user_menu , **self.admin_menu}
             response.update(self.user_menu)
         else:
-            response = {f"Username or passwrd incorrect.":"\n"}
+            response = {f"Username or passwrd incorrect.":""}
             response.update(self.start_menu)
         return response
 
@@ -127,7 +127,7 @@ class ClntServCommunication():
                     answ = clnt_socket.recv(1024).decode("utf-8")
                     if answ in[ "n", "y"]:
                         break
-                    bm().send_serv_response(clnt_socket, response)
+                    self.send_serv_response(clnt_socket, response)
                 if answ == "n":
                     self.send_serv_response(clnt_socket, self.user_menu)
                     break
@@ -150,35 +150,35 @@ class ClntServCommunication():
     def create_new_message(self, clnt_socket):
         new_msg = self.logged_in_user.send_msg()
         response = {"\nCreating new message":"\nenter the message recipier:"} 
-        bm().send_serv_response(clnt_socket, response)
+        self.send_serv_response(clnt_socket, response)
         while True:
             recvd_recipient = clnt_socket.recv(1024).decode("utf-8")
             response = new_msg.enter_recipient(recvd_recipient)
             if response == True:
                 break
-            bm().send_serv_response(clnt_socket, response)
+            self.send_serv_response(clnt_socket, response)
         response= {"message content:":""}
-        bm().send_serv_response(clnt_socket, response)
+        self.send_serv_response(clnt_socket, response)
         while True:
             recvd_text = clnt_socket.recv(1024).decode("utf-8")
             response = new_msg.enter_msg_text(recvd_text)
             if response == True:
                 break
-            bm().send_serv_response(clnt_socket, response)
+            self.send_serv_response(clnt_socket, response)
         response = {"Send the message?":"y/n ?"} 
-        bm().send_serv_response(clnt_socket, response)
+        self.send_serv_response(clnt_socket, response)
         while True:
             confirm = clnt_socket.recv(1024).decode("utf-8")
             if confirm  in ["y", "n"]:
                 response = new_msg.send_new_msg(confirm)
                 response.update(self.user_menu)
-                bm().send_serv_response(clnt_socket, response)
+                self.send_serv_response(clnt_socket, response)
                 break
 
     def get_users_list(self, clnt_socket):
         response = self.logged_in_user.list_of_users()
         response.update(self.user_menu)
-        bm().send_serv_response(clnt_socket, response)
+        self.send_serv_response(clnt_socket, response)
 
     def change_users_password(self, clnt_socket):
         response = {"Change user's passwrd:":"",
@@ -189,7 +189,7 @@ class ClntServCommunication():
 
         response = self.logged_in_user.change_password(recvd_username, recvd_new_pass)
         response.update(self.user_menu)
-        bm().send_serv_response(clnt_socket, response)
+        self.send_serv_response(clnt_socket, response)
 
     def delete_users_account(self, clnt_socket):
         response = {"Deleting user's account:":"",
@@ -197,7 +197,7 @@ class ClntServCommunication():
         recvd_username = self.get_username(clnt_socket, response)
         response = self.logged_in_user.delete_account(recvd_username)
         response.update(self.user_menu)
-        bm().send_serv_response(clnt_socket, response)
+        self.send_serv_response(clnt_socket, response)
 
 
 class Server():
