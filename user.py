@@ -14,19 +14,18 @@ class User():
 
     def read_old_msgs(self):
         read_msg_stat = ""
-        file = "received_msgs.json"
+        file = self.username + "_received_msgs.json"
         return self.read_msg(file, read_msg_stat)
 
     def read_new_msgs(self):
         read_msg_stat = True
-        file = "received_msgs.json"
+        file = self.username+"_received_msgs.json"
         return self.read_msg(file, read_msg_stat)
 
     def read_sent_msgs(self): 
         read_msg_stat = ""
-        file = "sent_msgs.json"
+        file = self.username + "_sent_msgs.json"
         return self.read_msg(file, read_msg_stat)
-
 
     def read_msg(self, file, read_msg_stat):
         path_file = self.path + file 
@@ -114,7 +113,6 @@ class Message():
             response = True
         return response 
 
-
     def enter_msg_text(self,recvd_text):
         recvd_text.strip()
         if recvd_text == "" :
@@ -126,7 +124,6 @@ class Message():
             self.text = recvd_text
             response = True
         return response 
-
 
     def number_unread_msgs(self,name, file):
         file_path = f"users/{name}/" + file
@@ -148,12 +145,12 @@ class Message():
         bm().save_file(file_path, msg_list)
 
     def send_new_msg(self, confirm):
-        recipier_box = self.number_unread_msgs(self.recipient, "received_msgs.json")
+        recipier_box = self.number_unread_msgs(self.recipient, self.recipient+"_received_msgs.json")
         if confirm == "y":
             if recipier_box < 5:
                 new_msg = self.set_new_message()
-                self.save_msg(new_msg , self.recipient, "received_msgs.json")
-                self.save_msg(new_msg , self.sender, "sent_msgs.json")
+                self.save_msg(new_msg , self.recipient, self.recipient + "_received_msgs.json")
+                self.save_msg(new_msg , self.sender, self.sender+"_sent_msgs.json")
                 response= {"Message has been sent.":""}
             else:
                 response= {"Message was not delivered, ":f"{self.recipient} inbox is full\n"}

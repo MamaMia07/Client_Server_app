@@ -1,7 +1,67 @@
 import account 
 import user
 import json
-from  tools import BasicMethods as bm
+#from  tools import BasicMethods as bm
+
+class Server():
+    def __init__(self, start_serv, version):
+        self.scc = ClntServCommunication(start_serv, version)
+
+    def start_user_connection(self, clnt_socket, addr):
+        print(f"Connected with {addr[0]}")
+        welcome = {"Welcome to my tiny server! :)":""}
+        response =  {**welcome , **self.scc.start_menu}
+        self.scc.send_serv_response(clnt_socket, response)
+        while True:
+            data = clnt_socket.recv(1024).decode("utf-8")
+            if data not in  self.scc.start_menu:
+                response = {"bad command:": data}
+                self.scc.send_serv_response(clnt_socket, response)
+                continue
+            if data == "new":
+               self.scc.new_user_data_setting(clnt_socket)
+            if data == "sign":
+                self.scc.sign_in_user(clnt_socket)
+                if self.scc.user_in.logged_in: 
+                    break
+            if data == "exit":
+                print(f"Connection with {addr[0]} terminated")
+                break
+
+    def logged_user(self, clnt_socket, addr):
+        while True:
+            data = clnt_socket.recv(1024).decode("utf-8")
+            if data not in self.scc.user_menu: 
+                response = {"bad command:": data}
+                print(response)
+                self.scc.send_serv_response(clnt_socket, response)
+                continue
+            if data == "new":
+                self.scc.create_new_message(clnt_socket)
+            if data == "read":
+                self.scc.read_new_msgs(clnt_socket)
+            if data == "mailbox":
+                self.scc.read_all_msgs(clnt_socket)
+            if data == "sent":
+                self.scc.read_sent_msgs(clnt_socket)
+            if data == "exit":
+                print(f"Connection with {addr[0]} terminated")
+                break
+   # admin permissions 
+            if data in self.scc.serv_info:
+                self.scc.server_info(clnt_socket, data)
+            if data == "users":
+                self.scc.get_users_list(clnt_socket)
+            if data == "pass":
+                self.scc.change_users_password(clnt_socket)
+            if data == "delete":
+                self.scc.delete_users_account(clnt_socket)
+
+    def handle_client(self, clnt_socket, addr):
+        with clnt_socket:
+            self.start_user_connection(clnt_socket, addr)
+            self.logged_user(clnt_socket, addr)
+
 
 
 class ClntServCommunication():
@@ -48,18 +108,18 @@ class ClntServCommunication():
                 break
             else: self.send_serv_response(clnt_socket, response)
 
+        response= {"username:":""}
+        self.send_serv_response(clnt_socket, response)
         while True:
-            response= {"username:":""}
-            self.send_serv_response(clnt_socket, response)
             recvd_username = clnt_socket.recv(1024).decode("utf-8")
             response = client_registration.insert_username(recvd_username)
             if response == True:
                 break
             else: self.send_serv_response(clnt_socket, response)
 
+        response = {"password:":""} 
+        self.send_serv_response(clnt_socket, response)
         while True:
-            response = {"password:":""} 
-            self.send_serv_response(clnt_socket, response)
             recvd_pass1 = clnt_socket.recv(1024).decode("utf-8")
             response = {"repeat password:":""}
             self.send_serv_response(clnt_socket, response)
@@ -78,7 +138,6 @@ class ClntServCommunication():
                 response.update(self.start_menu)
                 self.send_serv_response(clnt_socket, response)
                 break
-        
 
     def get_username(self, clnt_socket, response = {"username:":""} ): 
         #response = {"username:":""} 
@@ -199,65 +258,7 @@ class ClntServCommunication():
         response.update(self.user_menu)
         self.send_serv_response(clnt_socket, response)
 
-
-class Server():
-    def __init__(self, start_serv, version):
-        self.scc = ClntServCommunication(start_serv, version)
-
-    def start_user_connection(self, clnt_socket, addr):
-        print(f"Connected with {addr[0]}")
-        welcome = {"Welcome to my tiny server! :)":""}
-        response =  {**welcome , **self.scc.start_menu}
-        self.scc.send_serv_response(clnt_socket, response)
-        while True:
-            data = clnt_socket.recv(1024).decode("utf-8")
-            if data not in  self.scc.start_menu:
-                response = {"bad command:": data}
-                self.scc.send_serv_response(clnt_socket, response)
-                continue
-            if data == "new":
-               self.scc.new_user_data_setting(clnt_socket)
-            if data == "sign":
-                self.scc.sign_in_user(clnt_socket)
-                if self.scc.user_in.logged_in: 
-                    break
-            if data == "exit":
-                print(f"Connection with {addr[0]} terminated")
-                break
-
-    def logged_user(self, clnt_socket, addr):
-        while True:
-            data = clnt_socket.recv(1024).decode("utf-8")
-            if data not in self.scc.user_menu: 
-                response = {"bad command:": data}
-                print(response)
-                self.scc.send_serv_response(clnt_socket, response)
-                continue
-            if data == "new":
-                self.scc.create_new_message(clnt_socket)
-            if data == "read":
-                self.scc.read_new_msgs(clnt_socket)
-            if data == "mailbox":
-                self.scc.read_all_msgs(clnt_socket)
-            if data == "sent":
-                self.scc.read_sent_msgs(clnt_socket)
-            if data == "exit":
-                print(f"Connection with {addr[0]} terminated")
-                break
-   # admin permissions 
-            if data in self.scc.serv_info:
-                response = self.scc.logged_in_user.send_serv_info(data, self.scc.serv_start,self.scc.version)
-                response.update(self.scc.user_menu)
-                bm().send_serv_response(clnt_socket, response)
-            if data == "users":
-                self.scc.get_users_list(clnt_socket)
-            if data == "pass":
-                self.scc.change_users_password(clnt_socket)
-            if data == "delete":
-                self.scc.delete_users_account(clnt_socket)
-               
-
-    def handle_client(self, clnt_socket, addr):
-        with clnt_socket:
-            self.start_user_connection(clnt_socket, addr)
-            self.logged_user(clnt_socket, addr)
+    def server_info(self, clnt_socket, data):
+        response = self.logged_in_user.send_serv_info(data, self.serv_start,self.version)
+        response.update(self.user_menu)
+        self.send_serv_response(clnt_socket, response)

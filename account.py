@@ -55,7 +55,7 @@ class NewUserRegistration():
         elif recvd_username == "" :
             response = {f"username ": "can not be empty\nusername:"}
         elif any(symbol in forbidden for symbol in recvd_username):
-            response = {f"username {recvd_usernm} contains invalid char": f"{forbidden}\nusername:"}
+            response = {f"username {recvd_username} contains invalid char": f"{forbidden}\nusername:"}
         else:
             response = True
             self.new_account.set_username(recvd_username)
@@ -116,7 +116,6 @@ class SignInUser():
             self.status = users_list[recvd_username]["status"]
             self.logged_in = True
         return (self.logged_in, self.username, self.status)
-
 
     def logged_in_user(self):
         if self.status == "user":
