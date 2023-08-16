@@ -55,7 +55,7 @@ class NewUserRegistration():
         elif recvd_username == "" :
             response = {f"username ": "can not be empty\nusername:"}
         elif any(symbol in forbidden for symbol in recvd_username):
-            response = {f"username {recvd_username} contains invalid char": f"{forbidden}\nusername:"}
+            response = {f"username {recvd_username} contains invalid char": "\nusername:"}
         else:
             response = True
             self.new_account.set_username(recvd_username)
@@ -99,9 +99,10 @@ class SignInUser():
 
     def check_user(self, name):
         users_list = bm().read_from_file("admin/users.json")
-        return name  in users_list
+        return name in users_list
  
     def check_password(self, name, passw):
+        passw = bm().code_password(passw)
         users_list = bm().read_from_file("admin/users.json")
         try:
             find_pass = users_list[name]["password"]
@@ -109,6 +110,7 @@ class SignInUser():
         return passw == users_list[name]["password"]
 
     def sign_in_user(self, recvd_username, recvd_password):
+        #recvd_password = bm().code_password(recvd_password)
         recvd_username = recvd_username.lower().strip()
         users_list = bm().read_from_file("admin/users.json")
         if self.check_user(recvd_username) and self.check_password(recvd_username, recvd_password):

@@ -149,7 +149,6 @@ class ClntServCommunication():
         #response = {"password:":""} 
         self.send_serv_response(clnt_socket, response)
         recvd_password = clnt_socket.recv(1024).decode("utf-8")
-        recvd_password = bm().code_password(recvd_password)
         return recvd_password
 
     def set_logged_user_permissions(self, recvd_username, recvd_password):
