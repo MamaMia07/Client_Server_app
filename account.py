@@ -96,7 +96,7 @@ class SignInUser():
         self.username = ""
         self.status = ""
         self.logged_in = False
-
+        #self.users_list = bm().read_from_file("admin/users.json")
     def check_user(self, name):
         users_list = bm().read_from_file("admin/users.json")
         return name in users_list

@@ -13,8 +13,8 @@ class BasicMethods():
             return data
         except json.decoder.JSONDecodeError:
             print(f"file {file_path} can not be read")
-        except: print(f"file {file_path} content not available")
-
+        except: pass#print(f"file {file_path} content not available")
+                #pass
     @staticmethod
     def save_file(file, data):
         json_object = json.dumps(data, indent=4)
