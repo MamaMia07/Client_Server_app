@@ -1,5 +1,5 @@
 import time, datetime, shutil
-from  tools import BasicMethods as bm
+from  tools import *
 
 
 class User():
@@ -30,7 +30,7 @@ class User():
     def read_msg(self, file, read_msg_stat):
         path_file = self.path + file 
         try:
-            message_box = bm().read_from_file(path_file)
+            message_box = read_from_file(path_file)
             msg = {}
             for key in message_box:
                 if message_box[key]["message read"] != read_msg_stat:
@@ -43,7 +43,7 @@ class User():
                     response = msg
             finish = {"":{"All messages are read.": ""}}
             response.update(finish)
-            bm().save_file(path_file, message_box)
+            save_file(path_file, message_box)
         except: response = {'':{"There is no message": ""}}
         return response
 
@@ -58,25 +58,25 @@ class Admin(User):
         return serv_info[data]
  
     def list_of_users(self):
-        users_list = bm().read_from_file("admin/users.json")
+        users_list = read_from_file("admin/users.json")
         username_list = [key for key in users_list] 
         response = {"list of users:\n": f"{username_list}\n"}
         return response
 
     def change_password(self, user_account, new_passw):
-        users_list = bm().read_from_file("admin/users.json")
+        users_list = read_from_file("admin/users.json")
         if user_account in users_list:
             users_list[user_account]["password"] = new_passw
-            bm().save_file("admin/users.json", users_list)
+            save_file("admin/users.json", users_list)
             response = {f"new passwrd for {user_account} saved":"\n"}
         else: response = {f"user {user_account} does not exist":"\n"}
         return response
     
     def delete_account(self, user_account):
-        users_list = bm().read_from_file("admin/users.json")
+        users_list = read_from_file("admin/users.json")
         if user_account in users_list:
             del users_list[user_account]
-            bm().save_file("admin/users.json", users_list)
+            save_file("admin/users.json", users_list)
             path = "users/" + user_account
             shutil.rmtree(path)
             response = {f"account {user_account} removed.":"\n"}
@@ -102,7 +102,7 @@ class Message():
         return message
 
     def enter_recipient(self,recvd_recipient):
-        users_list = bm().read_from_file("admin/users.json")
+        users_list = read_from_file("admin/users.json")
         recvd_recipient = recvd_recipient.lower().strip()
         if recvd_recipient not in users_list : 
             response = {f"username {recvd_recipient}": "does not exist\nrecipient:"}
@@ -118,7 +118,7 @@ class Message():
         if recvd_text == "" :
             response = {f"username": "can not be empty\nrecipient:"}
         elif len(recvd_text) > 255:
-            response = {f"\ntext limit is 255 characters,":"please\
+            response = {"\ntext limit is 255 characters,":"please\
  abbreviate the text\nmessage content:"}
         else:
             self.text = recvd_text
@@ -129,7 +129,7 @@ class Message():
         file_path = f"users/{name}/" + file
         not_read_msgs = 0
         try:
-            message_box = bm().read_from_file(file_path)
+            message_box = read_from_file(file_path)
             for key in message_box:
                 if message_box[key]["message read"] == False:
                     not_read_msgs += 1
@@ -139,10 +139,10 @@ class Message():
     def save_msg(self, new_msg, name, file):
         file_path = f"users/{name}/" + file  
         try:
-            msg_list = bm().read_from_file(file_path)
+            msg_list = read_from_file(file_path)
             msg_list.update(new_msg)
         except: msg_list = new_msg
-        bm().save_file(file_path, msg_list)
+        save_file(file_path, msg_list)
 
     def send_new_msg(self, confirm):
         recipier_box = self.number_unread_msgs(self.recipient, self.recipient+"_received_msgs.json")

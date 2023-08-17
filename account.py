@@ -1,7 +1,6 @@
 import datetime
-from  tools import BasicMethods as bm
 import user
-
+from tools import *
 
 class Account():
     def __init__(self):
@@ -10,7 +9,7 @@ class Account():
         self.password = ""
         self.name = ""
         self.date = "" 
-        users_lst = bm().read_from_file("admin/users.json")
+        users_lst = read_from_file("admin/users.json")
 
     def create_account(self):
         self.date = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
@@ -29,7 +28,7 @@ class Account():
         self.username = cmd
 
     def set_password(self, cmd):
-        self.password = bm().code_password(cmd)
+        self.password = code_password(cmd)
 
 
 
@@ -48,7 +47,7 @@ class NewUserRegistration():
     def insert_username(self,recvd_username):
         forbidden_symb = """`~!@#$%^&*() +={[}}]|\:;"'<,>?/"""
         forbidden = set(forbidden_symb)
-        users_list = bm().read_from_file("admin/users.json")
+        users_list = read_from_file("admin/users.json")
         recvd_username = recvd_username.lower().strip()
         if recvd_username in users_list : 
             response = {f"username {recvd_username}": "already exists\nusername:"}
@@ -83,11 +82,11 @@ class NewUserRegistration():
         return response
 
     def save_new_account(self):
-        users_list = bm().read_from_file("admin/users.json")
+        users_list = read_from_file("admin/users.json")
         new_acc = self.new_account.create_account()
         users_list.update(new_acc)
-        bm().save_file("admin/users.json", users_list)
-        bm().create_users_dir(self.new_account.username)
+        save_file("admin/users.json", users_list)
+        create_users_dir(self.new_account.username)
 
 
 
@@ -96,23 +95,22 @@ class SignInUser():
         self.username = ""
         self.status = ""
         self.logged_in = False
-        #self.users_list = bm().read_from_file("admin/users.json")
+     
     def check_user(self, name):
-        users_list = bm().read_from_file("admin/users.json")
+        users_list = read_from_file("admin/users.json")
         return name in users_list
  
     def check_password(self, name, passw):
-        passw = bm().code_password(passw)
-        users_list = bm().read_from_file("admin/users.json")
+        passw = code_password(passw)
+        users_list = read_from_file("admin/users.json")
         try:
             find_pass = users_list[name]["password"]
         except: return False
         return passw == users_list[name]["password"]
 
     def sign_in_user(self, recvd_username, recvd_password):
-        #recvd_password = bm().code_password(recvd_password)
         recvd_username = recvd_username.lower().strip()
-        users_list = bm().read_from_file("admin/users.json")
+        users_list = read_from_file("admin/users.json")
         if self.check_user(recvd_username) and self.check_password(recvd_username, recvd_password):
             self.username = recvd_username
             self.status = users_list[recvd_username]["status"]
