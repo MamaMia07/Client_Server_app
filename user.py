@@ -27,20 +27,38 @@ class User():
         file = self.username + "_sent_msgs.json"
         return self.read_msg(file, read_msg_stat)
 
+
+
+
+    def get_msgs_list(self,message_box, read_msg_stat):
+        msg = {}
+        for key in message_box:
+            if message_box[key]["message read"] != read_msg_stat:
+                msg[key] ={"from:" : message_box[key]["sender"],
+                       "to:" : message_box[key]["recipient"],
+                       "date:" : message_box[key]["creation date"],
+                       "text:\n" : message_box[key]["text"]
+                        }
+                message_box[key]["message read"] = True
+                response = msg
+        return response
+
+
     def read_msg(self, file, read_msg_stat):
-        path_file = self.path + file 
+        path_file = self.path + file
         try:
             message_box = read_from_file(path_file)
-            msg = {}
-            for key in message_box:
-                if message_box[key]["message read"] != read_msg_stat:
-                    msg[key] ={"from:" : message_box[key]["sender"],
-                           "to:" : message_box[key]["recipient"],
-                           "date:" : message_box[key]["creation date"],
-                           "text:\n" : message_box[key]["text"]
-                            }
-                    message_box[key]["message read"] = True
-                    response = msg
+            response = self.get_msgs_list(message_box, read_msg_stat)
+##            msg = {}
+##            for key in message_box:
+##                if message_box[key]["message read"] != read_msg_stat:
+##                    msg[key] ={"from:" : message_box[key]["sender"],
+##                           "to:" : message_box[key]["recipient"],
+##                           "date:" : message_box[key]["creation date"],
+##                           "text:\n" : message_box[key]["text"]
+##                            }
+##                    message_box[key]["message read"] = True
+##                    response = msg
             finish = {"":{"All messages are read.": ""}}
             response.update(finish)
             save_file(path_file, message_box)
