@@ -9,8 +9,7 @@ class Account():
         self.password = ""
         self.name = ""
         self.date = "" 
-        users_lst = read_from_file("admin/users.json")
-
+       
     def create_account(self):
         self.date = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         account = {self.username :
