@@ -1,7 +1,7 @@
 import account 
 import user
 import json
-#from  tools import BasicMethods as bm
+
 
 class Server():
     def __init__(self, start_serv, version):
@@ -219,7 +219,7 @@ class ClntServCommunication():
         self.send_serv_response(clnt_socket, response)
         while True:
             recvd_text = clnt_socket.recv(1024).decode("utf-8")
-            response = new_msg.enter_msg_text(recvd_text)
+            response = new_msg.enter_msg_content(recvd_text)
             if response == True:
                 break
             self.send_serv_response(clnt_socket, response)

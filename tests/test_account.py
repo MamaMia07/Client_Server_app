@@ -1,10 +1,9 @@
 import unittest
 from unittest import mock
 import sys, json
-sys.path.append('E:\! PY ZeroToJunior\client_server_application')
+sys.path.append('E:\...\client_server_application')
 
 import account
-
 
 
 class TestAccount(unittest.TestCase):
@@ -13,7 +12,6 @@ class TestAccount(unittest.TestCase):
         self.nur = account.NewUserRegistration()
         self.siu = account.SignInUser()
         self.userslist = self.read_test_data()
-       
 
     def read_test_data(self):
         with open("test_users.json", "r") as outfile:
@@ -48,7 +46,6 @@ class TestAccount(unittest.TestCase):
 
         self.assertTrue(self.nur.insert_password("123456", "123456"))
 
-
     def test_check_user(self):
         with mock.patch('account.read_from_file', return_value = self.userslist):
             self.assertTrue(self.siu.check_user("test"))
@@ -75,8 +72,6 @@ class TestAccount(unittest.TestCase):
         with mock.patch('account.read_from_file', return_value = self.userslist):
             resp = (False, "", "")
             self.assertEqual(siu.sign_in_user("test", "12345"),resp)
-    
-    
     
         
 if __name__ == '__main__':
