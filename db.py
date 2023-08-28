@@ -15,8 +15,6 @@ def config(filename = 'database.ini', section = 'postgresql'):
     return db
 
 
-db_parameters = config()
-print(db_parameters)
 
 def connect():
     try:
