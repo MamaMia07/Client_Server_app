@@ -35,14 +35,20 @@ class NewUserRegistration():
     def __init__(self):
         self.new_account = Account()
 
+    # ujednolicic funkcje name i username - dekorator?
     def insert_name(self,recvd_name):
+        forbidden_symb = """`~!@#$%^&*() +={[}}]|\:;"'<,>?/"""
+        forbidden = set(forbidden_symb)
         if recvd_name == "" :
             response = {f"name ": "can not be empty"}
+        elif any(symbol in forbidden for symbol in recvd_name):
+            response = {f"username {recvd_username} contains invalid char": "\nusername:"}
         else:
             self.new_account.set_name(recvd_name)
             response = True
         return response
-    
+
+# zastapic odczytem z bazy    
     def insert_username(self,recvd_username):
         forbidden_symb = """`~!@#$%^&*() +={[}}]|\:;"'<,>?/"""
         forbidden = set(forbidden_symb)
@@ -80,6 +86,7 @@ class NewUserRegistration():
             response =  False
         return response
 
+# zastapic zapisem do bazy
     def save_new_account(self):
         users_list = read_from_file("admin/users.json")
         new_acc = self.new_account.create_account()
@@ -94,11 +101,13 @@ class SignInUser():
         self.username = ""
         self.status = ""
         self.logged_in = False
-     
+
+   #zastapic odczytem z bazy  
     def check_user(self, name):
         users_list = read_from_file("admin/users.json")
         return name in users_list
  
+# zastapic odczytem z bazy
     def check_password(self, name, passw):
         passw = code_password(passw)
         users_list = read_from_file("admin/users.json")
@@ -107,6 +116,7 @@ class SignInUser():
         except: return False
         return passw == users_list[name]["password"]
 
+    # zastapic odczytem z bazy
     def sign_in_user(self, recvd_username, recvd_password):
         recvd_username = recvd_username.lower().strip()
         users_list = read_from_file("admin/users.json")
