@@ -1,4 +1,4 @@
-import psycopg2
+import psycopg2, time, datetime
 
 from configparser import ConfigParser
 
@@ -29,6 +29,21 @@ def connect():
         cursor = connection.cursor()
         print("PostgreSQL server information")
         print(connection.get_dsn_parameters(),'\n')
+
+        # Executing a SQL query
+        #cursor.execute("SELECT version();")
+        tab = 'account'
+        postgres_insert_querry = f'''INSERT INTO {tab} (
+username, password, name, created_on) VALUES(%s,%s,%s,%s) '''
+
+        record_to_insert = ('rewq2', 'www', 'test2', datetime.datetime.now())
+
+        cursor.execute(postgres_insert_querry, record_to_insert)
+        connection.commit()
+        # Fetch result
+       # record = cursor.fetchone()
+        #print("You are connected to - ", record, "\n")
+        
     except:# (Exception, psycopg2.Error):
         print("Error while connecting to PostgreSQL")
     finally:
