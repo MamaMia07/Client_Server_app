@@ -12,18 +12,23 @@ class Client():
         data = ""
         while True:
             rec = clnt_socket.recv(self.size)
+            if not rec:
+                break
             data += rec.decode("utf-8")
-            if len(rec) < self.size: break 
-        for key in json.loads(data):
-            print(f"{key} {json.loads(data)[key]}")
+            #if len(rec) < self.size: break 
+        #for key in json.loads(data):
+        #    print(f"{key} {json.loads(data)[key]}")
+        #return data
+        for key, value in json.loads(data).items():
+            print(f"{key} {value}")
         return data
             
-    def querry(self, clntsock, data):
+    def query(self, clntsock, data):
         if "password" in data:
-            querry = getpass.getpass(prompt = "> ")
+            query = getpass.getpass(prompt = "> ")
         else:
-            querry = input("> ")
-        return querry
+            query = input("> ")
+        return query
 
     
 
@@ -35,14 +40,19 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as clnt_socket:
 
     rec_srv = client.receive(clnt_socket)
     while connected:
-        request = client.querry(clnt_socket, rec_srv)
+        request = client.query(clnt_socket, rec_srv)
         if request != "":
             clnt_socket.send(request.encode("utf-8"))
         else: continue
         if request == "exit": connected = False #break
         try:
             rec_srv = client.receive(clnt_socket)
-        except: pass
+        except ConnectionError as e:
+            print(f"Connection error: {e}")
+            pass
+        except Exception as e:
+            print(f"Error: {e}")
+            pass
 
        
 

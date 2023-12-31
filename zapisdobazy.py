@@ -4,8 +4,6 @@ import psycopg2, time, datetime
 from configparser import ConfigParser
 
 
-
-
 def config(filename = 'database.ini', section = 'postgresql'):
     parser = ConfigParser()
     parser.read(filename)
@@ -20,6 +18,7 @@ def config(filename = 'database.ini', section = 'postgresql'):
 
 
 
+ # polaczenie z baza i wykonanie operacji.
 def connect():
     try:
         # read connection parameters
@@ -37,16 +36,27 @@ def connect():
         # Executing a SQL query
         #cursor.execute("SELECT version();")
         tab = 'account'
-        postgres_insert_querry = f'''INSERT INTO {tab} (
-username, password, name, created_on) VALUES(%s,%s,%s,%s) '''
+        postgres_insert_querry = f'''
+                        INSERT INTO {tab} (
+                        username, password, name, created_on)
+                        VALUES(%s,%s,%s,%s) ''' 
 
-        record_to_insert = ('rewq2', 'www', 'test2', datetime.datetime.now())
+        record_to_insert = ('rewq500', 'www500', 'test500', datetime.datetime.now())
 
         cursor.execute(postgres_insert_querry, record_to_insert)
+        
+
+        postgres_select_querry = f'''
+                        SELECT username FROM {tab} 
+                        '''
+        cursor.execute(postgres_select_querry)
+
+
+
         connection.commit()
         # Fetch result
-       # record = cursor.fetchone()
-        #print("You are connected to - ", record, "\n")
+        record = cursor.fetchall()
+        print("Selected names: ", record, "\n")
         
     except:# (Exception, psycopg2.Error):
         print("Error while connecting to PostgreSQL")
@@ -55,5 +65,5 @@ username, password, name, created_on) VALUES(%s,%s,%s,%s) '''
             cursor.close()
             connection.close()
             print("PostgreSQL connection is closed")  
-
 connect()
+
