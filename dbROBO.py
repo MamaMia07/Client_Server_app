@@ -19,7 +19,7 @@ def config(filename = 'database.ini', section = 'postgresql'):
 
 
 def connect(func):
-    def wrapper():
+    def wrapper(*args, **kwargs):
         try:
             
             # read connection parameters
@@ -31,16 +31,16 @@ def connect(func):
 
             # Create a cursor to perform database operations
             cursor = connection.cursor()
-            print("PostgreSQL server information")
-            print(connection.get_dsn_parameters(),'\n')
+            #print("PostgreSQL server information")
+           # print(connection.get_dsn_parameters(),'\n')
 
-            postgres_querry = func()
+            postgres_query = func()
 
-            cursor.execute(postgres_querry)
+            cursor.execute(postgres_query)
             connection.commit()
 
-            #record = cursor.fetchall()
-           # print("Selected names: ", record, "\n")
+            record = cursor.fetchall()
+            #print("Selected names: ", record, "\n")
             
             print("Query executed successfully")
 
@@ -53,39 +53,32 @@ def connect(func):
                 cursor.close()
                 connection.close()
                 print("PostgreSQL connection is closed.")  
-        #return record
+        return record
 
     return wrapper
 
 @connect
 def func():
     tab = 'account'
-##    postgres_querry = f'''
-##                        SELECT username FROM {tab} 
-##                        '''
-    postgres_querry = f'''
-                        INSERT INTO {tab} (
-                        username, password, name, created_on)
-                        VALUES(%s, %s, %s, %s) ''' % ('rewq200', 'www200', 'test200', datetime.datetime.now())
+    postgres_query = f'''
+                        SELECT username FROM {tab} 
+                        '''
+##    postgres_query = f"INSERT INTO {tab} (username, password, name, created_on) VALUES ({a}, {b}, {c}, {d})"
+                    #, 'www200', 'test200', datetime.datetime.now()) '''
+                    #% ('rewq200', 'www200', 'test200', datetime.datetime.now())
 ####
 ####        
 
-    return postgres_querry
+    return postgres_query
 
 
 
 print(func())
 
-
-
-
-
-
+# Do INSERT dodac w zaptaniu opcje RETURN ..... (tu podac co ma zwracac po wstawieniu do tabeli)
 print(f'''INSERT INTO AAAAAAA (
-                        username, password, name, created_on)
-                        VALUES(%s, %s, %s, %s) ''' % ('rewq200', 'www200', 'test200', datetime.datetime.now()))
-
-
+        username, password, name, created_on)
+        VALUES(%s, %s, %s, %s) ''' % ('rewq200', 'www200', 'test200', datetime.datetime.now()))
 
 
 
