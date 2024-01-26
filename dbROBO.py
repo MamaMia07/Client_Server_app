@@ -20,8 +20,8 @@ def config(filename = 'database.ini', section = 'postgresql'):
 
 def connect(func):
     def wrapper(*args, **kwargs):
+        record = None
         try:
-            
             # read connection parameters
             db_parameters = config()
 
@@ -34,52 +34,72 @@ def connect(func):
             #print("PostgreSQL server information")
            # print(connection.get_dsn_parameters(),'\n')
 
-            postgres_query = func()
+            postgres_query , values = func()
+##            record = func(cursor, connection)
 
-            cursor.execute(postgres_query)
+            cursor.execute(postgres_query, values)
             connection.commit()
 
-            record = cursor.fetchall()
-            #print("Selected names: ", record, "\n")
-            
+            try:
+                record = cursor.fetchall()
+                #print("Selected names: ", record, "\n")
+            except:
+                print("Nothing to fetch")
+
+                
             print("Query executed successfully")
 
         except (Exception, psycopg2.Error) as error:
-             print("Error while connecting to PostgreSQL:\n", error)
+             print("Error while connecting to PostgreSQL:\n",error)
+
 ##        except:
 ##            print("Error while connecting to PostgreSQL")
         finally:
-            if (connection):
+            if connection:  # czy taki warunek jest OK?
                 cursor.close()
                 connection.close()
                 print("PostgreSQL connection is closed.")  
+        
         return record
 
     return wrapper
 
 @connect
-def func():
+def func(): #(cursor, connection):
     tab = 'account'
-    postgres_query = f'''
-                        SELECT username FROM {tab} 
-                        '''
+##    postgres_query = f'''
+##                        SELECT username FROM {tab}
+##                      '''
+    dat = datetime.datetime.now()
+    print(type(dat))
+    print(dat)
+    postgres_query = "INSERT INTO account (username, password, name, created_on) VALUES (%s, %s, %s, %s) RETURNING user_id;"          
+    values = ('rewq2000', 'www2000', 'test2000', datetime.datetime.now())              
+
+##    cursor.execute(postgres_query)
+##    connection.commit()
+##    record = cursor.fetchall()
+##    return record
+    return postgres_query, values
 ##    postgres_query = f"INSERT INTO {tab} (username, password, name, created_on) VALUES ({a}, {b}, {c}, {d})"
                     #, 'www200', 'test200', datetime.datetime.now()) '''
                     #% ('rewq200', 'www200', 'test200', datetime.datetime.now())
 ####
 ####        
 
-    return postgres_query
+    
 
 
-
-print(func())
+#print("Selected names: ", record, "\n")
+print("Inserted user_id: ", func()[0], "\n")
+#print(func())
 
 # Do INSERT dodac w zaptaniu opcje RETURN ..... (tu podac co ma zwracac po wstawieniu do tabeli)
-print(f'''INSERT INTO AAAAAAA (
-        username, password, name, created_on)
-        VALUES(%s, %s, %s, %s) ''' % ('rewq200', 'www200', 'test200', datetime.datetime.now()))
 
+##print(f'''INSERT INTO AAAAAAA (
+##        username, password, name, created_on)
+##        VALUES(%s, %s, %s, %s) ''' % ('rewq200', 'www200', 'test200', datetime.datetime.now()))
+##
 
 
 
