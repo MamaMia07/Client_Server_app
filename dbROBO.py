@@ -34,7 +34,7 @@ def connect(func):
             #print("PostgreSQL server information")
            # print(connection.get_dsn_parameters(),'\n')
 
-            postgres_query , values = func()
+            postgres_query , values = func(*args, **kwargs)
 ##            record = func(cursor, connection)
 
             cursor.execute(postgres_query, values)
@@ -65,41 +65,50 @@ def connect(func):
     return wrapper
 
 @connect
-def func(): #(cursor, connection):
+def insert_new_account(username, name, passw): #(cursor, connection):
     tab = 'account'
-##    postgres_query = f'''
-##                        SELECT username FROM {tab}
-##                      '''
-    dat = datetime.datetime.now()
-    print(type(dat))
-    print(dat)
-    postgres_query = "INSERT INTO account (username, password, name, created_on) VALUES (%s, %s, %s, %s) RETURNING user_id;"          
-    values = ('rewq2000', 'www2000', 'test2000', datetime.datetime.now())              
-
-##    cursor.execute(postgres_query)
-##    connection.commit()
-##    record = cursor.fetchall()
-##    return record
+    postgres_query = f'''INSERT INTO {tab} (username, password, name, created_on)
+VALUES (%s, %s, %s, %s) RETURNING user_id;'''          
+    values = (username, name, passw, datetime.datetime.now())              
     return postgres_query, values
-##    postgres_query = f"INSERT INTO {tab} (username, password, name, created_on) VALUES ({a}, {b}, {c}, {d})"
-                    #, 'www200', 'test200', datetime.datetime.now()) '''
-                    #% ('rewq200', 'www200', 'test200', datetime.datetime.now())
-####
-####        
-
-    
 
 
-#print("Selected names: ", record, "\n")
-print("Inserted user_id: ", func()[0], "\n")
-#print(func())
+print("Inserted user_id: ", insert_new_account('lala', 'olla', 'haselko'), "\n")
 
-# Do INSERT dodac w zaptaniu opcje RETURN ..... (tu podac co ma zwracac po wstawieniu do tabeli)
 
-##print(f'''INSERT INTO AAAAAAA (
-##        username, password, name, created_on)
-##        VALUES(%s, %s, %s, %s) ''' % ('rewq200', 'www200', 'test200', datetime.datetime.now()))
-##
+@connect
+def select_users():
+    tab = 'account'
+    postgres_query = f"SELECT username FROM {tab}"
+    values = None
+    return postgres_query, values
+
+
+users = select_users()
+print("Selected names: ", users)
+print(any(user[0] =='lala' for user in users))
+
+
+
+@connect
+def insert_new_message(sender, recipient, content):
+    tab = 'message'
+    query = f'''INSERT INTO {tab} (sender, recipient, content, created_time)
+VALUES (%s, %s, %s, %s) RETURNING message_id;'''          
+    values = (sender, recipient, content, datetime.datetime.now())              
+    return query, values
+
+#print("Inserted message_id: ", insert_new_message('od', 'do', 'wiadomosc'), "\n")
+
+
+
+@connect
+def select_messages(name):
+    query = f"SELECT (sender, recipient, content, created_time) FROM message WHERE recipient = %s ;"
+    values = (name, )
+    return query, values
+
+print(select_messages('do'))
 
 
 
