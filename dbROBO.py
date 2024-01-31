@@ -39,7 +39,9 @@ def connect(func):
 
             cursor.execute(postgres_query, values)
             connection.commit()
-
+ 
+##            columns = list(cursor.description)
+##            print(columns[0][0])
             try:
                 record = cursor.fetchall()
                 #print("Selected names: ", record, "\n")
@@ -47,7 +49,7 @@ def connect(func):
                 print("Nothing to fetch")
 
                 
-            print("Query executed successfully")
+            print(f"Query {func.__name__} executed successfully")
 
         except (Exception, psycopg2.Error) as error:
              print("Error while connecting to PostgreSQL:\n",error)
@@ -61,19 +63,24 @@ def connect(func):
                 print("PostgreSQL connection is closed.")  
         
         return record
-
     return wrapper
+
+
+
+#!!!!!!!!!!!  "Dictionary-like cursor", part of psycopg2.extras !!!!!!!!!!!!!
+
+
 
 @connect
 def insert_new_account(username, name, passw): #(cursor, connection):
     tab = 'account'
     postgres_query = f'''INSERT INTO {tab} (username, password, name, created_on)
-VALUES (%s, %s, %s, %s) RETURNING user_id;'''          
+VALUES (%s, %s, %s, %s) RETURNING user_id'''          
     values = (username, name, passw, datetime.datetime.now())              
     return postgres_query, values
 
 
-print("Inserted user_id: ", insert_new_account('lala', 'olla', 'haselko'), "\n")
+#print("Inserted user_id: ", insert_new_account('lala', 'olla', 'haselko'), "\n")
 
 
 @connect
@@ -86,33 +93,41 @@ def select_users():
 
 users = select_users()
 print("Selected names: ", users)
-print(any(user[0] =='lala' for user in users))
+#print("W bazie istnieje użytkownik 'lala'? ",any(user[0] =='lala' for user in users))
 
 
 
 @connect
-def insert_new_message(sender, recipient, content):
+def new_message(sender, recipient, content):
     tab = 'message'
     query = f'''INSERT INTO {tab} (sender, recipient, content, created_time)
-VALUES (%s, %s, %s, %s) RETURNING message_id;'''          
+VALUES (%s, %s, %s, %s) RETURNING message_id'''          
     values = (sender, recipient, content, datetime.datetime.now())              
     return query, values
 
-#print("Inserted message_id: ", insert_new_message('od', 'do', 'wiadomosc'), "\n")
+#print("Inserted message_id: ", new_message('from', 'to', '3. message new message'), "\n")
 
 
 
 @connect
-def select_messages(name):
-    query = f"SELECT (sender, recipient, content, created_time) FROM message WHERE recipient = %s ;"
+def select_messages_to(name):
+    query = f"SELECT (message_id, sender, recipient, content, created_time) FROM message WHERE recipient = %s "
     values = (name, )
     return query, values
 
-print(select_messages('do'))
+print(select_messages_to('to'))
 
 
 
+@connect
+def mark_msg_read(msg_id):
+    query = f"UPDATE message SET read = True WHERE message_id = %s "
+    values = (msg_id, )
+    return query, values
 
+print(mark_msg_read(1))
+
+    
 ## # polaczenie z baza i wykonanie operacji.
 ##def connect():
 ##    try:
