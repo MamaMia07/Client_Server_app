@@ -31,6 +31,7 @@ def connect(func):
 
             # Create a cursor to perform database operations
             cursor = connection.cursor()
+            #cursor = connection.cursor(cursor_factory=psycopg2.extras.DictCursor)
             #print("PostgreSQL server information")
            # print(connection.get_dsn_parameters(),'\n')
 
@@ -115,7 +116,13 @@ def select_messages_to(name):
     values = (name, )
     return query, values
 
-print(select_messages_to('to'))
+aa = select_messages_to('to')
+for row in aa:
+    print(type(row))
+    print("code: {}".format(row[0])) 
+    print("name: {}".format(row[0][2])) 
+    print("concatenated_column: {}".format(row[0][3])) 
+#print(select_messages_to('to'))
 
 
 
