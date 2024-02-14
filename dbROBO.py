@@ -77,8 +77,7 @@ def connect(func):
 ##  Nowy użytkownik - do bazy
 ##@connect
 ##def insert_new_account(username, name, passw): #(cursor, connection):
-##    tab = 'account'
-##    postgres_query = f'''INSERT INTO {tab} (username, password, name, created_on)
+##    postgres_query = f'''INSERT INTO account (username, password, name, created_on)
 ##VALUES (%s, %s, %s, %s) RETURNING user_id'''          
 ##    values = (username, name, passw, datetime.datetime.now())              
 ##    return postgres_query, values
@@ -111,16 +110,15 @@ print("W bazie istnieje użytkownik 'uuu'? ",any(user[0] =='uuu' for user in use
 
 
 
-####  OK !!
-####  Nowa wiadomosc do bazy danych
-##@connect
-##def new_message(sender, recipient, content):
-##    tab = 'message'
-##    query = f'''INSERT INTO {tab} (sender, recipient, content, created_time)
-##VALUES (%s, %s, %s, %s) RETURNING message_id'''          
-##    values = (sender, recipient, content, datetime.datetime.now())              
-##    return query, values
-##
+##  !! OK !!
+##  Nowa wiadomosc do bazy danych
+@connect
+def new_message(sender, recipient, content):
+    query = f'''INSERT INTO message (sender, recipient, content, created_time)
+VALUES (%s, %s, %s, %s) RETURNING message_id'''          
+    values = (sender, recipient, content, datetime.datetime.now())              
+    return query, values
+
 ##print("Inserted message_id: ", new_message('nada', 'odbioe', 'takka se wiadomosc'), "\n")
 ##
 
@@ -155,23 +153,45 @@ print(bb)
 ### ustaw status wiadomości o id = msg_id na "przeczytana" 
 @connect
 def mark_msg_read(msg_id):
-    query = f"UPDATE message SET read = True WHERE message_id = %s "
+    query = f"UPDATE message SET read = True WHERE message_id = %s RETURNING message_id"
     values = (msg_id, )
     return query, values
+
 
 print(mark_msg_read(18))
 
    
 
-###   !!!!! ZMIANA hasła
-
+### ZMIANA hasła  OK
 @connect
 def change_pswrd(pswrd, username):
-    query = f"UPDATE account SET password = %s WHERE username = %s "
+    query = f"UPDATE account SET password = %s WHERE username = %s RETURNING user_id"
     values = (pswrd, username,)
     return query, values
 
 print(change_pswrd('Nowehaselko', 'lala'))
+
+
+
+### ZEBRANIE W JEDNĄ FUNKCJE ### CZY MA SENS ???
+
+querys = {'select_names' : f"SELECT username FROM account",
+          'select_messages_to': f'''SELECT (message_id, sender, recipient, content, created_time)
+FROM message WHERE recipient = %s ''',
+          'new_message' : f'''INSERT INTO message (sender, recipient, content, created_time)
+VALUES (%s, %s, %s, %s) RETURNING message_id''',
+          }
+
+
+@connect
+def query(query, *args):
+    values = (args,)
+    return query, values
+
+#print(query(querys['select_messages_to'], "to"))
+#print(query(querys['select_names']))
+print(query(querys['new_message'],('nada', 'odbioe', 'takka se wiadomosc', datetime.datetime.now())))
+
 
 ## # polaczenie z baza i wykonanie operacji.
 ##def connect():
