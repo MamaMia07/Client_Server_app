@@ -232,7 +232,8 @@ class ClntServCommunication():
                 response.update(self.user_menu)
                 self.send_serv_response(clnt_socket, response)
                 break
-
+    
+    # Admin permissions
     def get_users_list(self, clnt_socket):
         response = self.logged_in_user.list_of_users()
         response.update(self.user_menu)
