@@ -2,7 +2,8 @@
 
 import psycopg2, time, datetime
 from configparser import ConfigParser
-from psycopg2 import extras
+import bcrypt
+#from psycopg2 import extras
 
 def config(filename = 'database.ini', section = 'postgresql'):
     parser = ConfigParser()
@@ -71,6 +72,21 @@ def connect(func):
     return wrapper
 
 
+def hash_pswrd(pswrd):
+    salt = bcrypt.gensalt()
+    print(salt)
+    return bcrypt.hashpw(pswrd.encode(), salt)
+aa=hash_pswrd('MAMA')
+print(aa)
+print(bcrypt.checkpw(b'MAMA', aa))
+
+bb=hash_pswrd('MAMA')
+print(bb)
+print(bcrypt.checkpw('MAMA'.encode(), bb))
+
+cc=hash_pswrd('iuyt')
+print(cc)
+print(bcrypt.checkpw('iuyt'.encode(), cc))
 
 
 
