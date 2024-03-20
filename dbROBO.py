@@ -76,6 +76,7 @@ def hash_pswrd(pswrd):
     salt = bcrypt.gensalt()
     print(salt)
     return bcrypt.hashpw(pswrd.encode(), salt)
+
 aa=hash_pswrd('MAMA')
 print(aa)
 print(bcrypt.checkpw(b'MAMA', aa))
