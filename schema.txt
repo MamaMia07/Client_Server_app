@@ -1,0 +1,52 @@
+
+CREATE TABLE roles ( id SERIAL, 
+			status VARCHAR(30) UNIQUE NOT NULL, 
+			PRMARY KEY (id));
+
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY, 
+    username VARCHAR(50) UNIQUE NOT NULL, 
+    password VARCHAR(200) NOT NULL, 
+    name VARCHAR(50) NOT NULL,
+    active BOOLEAN DEFAULT True,
+    role_id INTEGER REFERENCES roles(id) DEFAULT 2, 
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP, 
+    modified_at TIMESTAMPTZ DEFAULT NULL,  
+    last_log TIMESTAMPTZ DEFAULT NULL
+);
+
+CREATE VIEW active_users AS
+SELECT id, username, password, name, active, role_id
+FROM users
+WHERE active = 't' ;
+
+
+CREATE FUNCTION update_modified_on_user() 
+RETURNS TRIGGER 
+LANGUAGE PLPGSQL
+AS $$
+BEGIN
+NEW.modified_on = now();
+RETURN NEW;
+END
+$$;
+
+CREATE TRIGGER update_user_modified_on
+BEFORE UPDATE
+ON users
+FOR EACH ROW
+EXECUTE PROCEDURE update_modified_on_user(); 
+
+
+CREATE RULE soft_deletion AS ON DELETE TO users DO INSTEAD (
+  UPDATE users SET active = false WHERE id = old.id
+);
+
+
+CREATE TABLE messages ( id SERIAL PRIMARY KEY,
+		from_id INTEGER REFERENCES users(id) NOT NULL,
+		to_id INTEGER REFERENCES users(id) NOT NULL,
+		read BOOLEAN DEFAULT False,
+		content VARCHAR(255),
+		created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+		);
