@@ -27,7 +27,7 @@ def connect(func):
             db_parameters = config()
 
             # connect to the PostgreSQL server
-            print('Connecting to the PostgreSQL database...')
+            print('\nConnecting to the PostgreSQL database...')
             connection = psycopg2.connect(**db_parameters)
 
             # Create a cursor to perform database operations
@@ -77,23 +77,23 @@ def hash_pswrd(pswrd):
     print(salt)
     return bcrypt.hashpw(pswrd.encode(), salt)
 
-aa=hash_pswrd('MAMA')
-print(aa)
-print(bcrypt.checkpw(b'MAMA', aa))
-
-bb=hash_pswrd('MAMA')
-print(bb)
-print(bcrypt.checkpw('MAMA'.encode(), bb))
-
-cc=hash_pswrd('iuyt')
-print(cc)
-print(bcrypt.checkpw('iuyt'.encode(), cc))
-
-
+##aa=hash_pswrd('MAMA')
+##print(aa)
+##print(bcrypt.checkpw(b'MAMA', aa))
+##
+##bb=hash_pswrd('MAMA')
+##print(bb)
+##print(bcrypt.checkpw('MAMA'.encode(), bb))
+##
+##cc=hash_pswrd('iuyt')
+##print(cc)
+##print(bcrypt.checkpw('iuyt'.encode(), cc))
 
 
 
-####  Nowy użytkownik - do bazy
+
+
+####  Nowy użytkownik - do bazy  OK
 @connect
 def insert_new_account(username, name, passw, role = 2): #(cursor, connection):
     postgres_query = f'''INSERT INTO users (username, password, name, created_on)
@@ -102,9 +102,9 @@ VALUES (%s, %s, %s, %s) RETURNING id'''
     return postgres_query, values
 
 ##print("Inserted user_id: ", insert_new_account('beata', 'haslo beaty', 'name beata'), "\n")
-##
 
-##  lista uzytkowników z bazy,
+
+##  lista uzytkowników z bazy,  OK
 ## lista z WIDOKU active_users (uzytkownicy o statusie True)
 @connect
 def select_active_users():
@@ -116,7 +116,8 @@ usersA = select_active_users()  # 't' - True, 'f' - False
 
 print("Selected names: ", usersA)
 
-## wszyscy użytkownicy istniejący w bazie
+
+## wszyscy użytkownicy istniejący w bazie  OK
 @connect
 def select_users():
     postgres_query = f"SELECT username FROM users"
@@ -146,14 +147,14 @@ def change_status(username, status):
     values = (status, username,)
     return query, values
 ##
-
 ##print(change_status('ola', True))
 
 
 
 ####  czy dany uzytkownik istnieje w bazie?
-##is_user_in_bd = any(user[0] =='uuu' for user in users)
-##print("W bazie istnieje użytkownik 'uuu'? ",any(user[0] =='uuu' for user in users))
+####is_user_in_bd = any(user[0] =='uuu' for user in users)
+uzytkownik = 'zuzia'
+print(f"\nW bazie istnieje użytkownik {uzytkownik}? ",any(user[0] == uzytkownik for user in users),'\n')
 ##
 ##
 #####         wydruk słownika otrzymanego jako rezultat z bazy, po zapytaniu:
@@ -167,35 +168,33 @@ def change_status(username, status):
 ##
 ###  !! OK !!
 ###  Nowa wiadomosc do bazy danych
-##@connect
-##def new_message(sender, recipient, content):
-##    query = f'''INSERT INTO messages (from_id, to_id, content)
-##VALUES ( 
-##(SELECT id FROM users WHERE username = %(sender)s),
-##(SELECT id FROM users WHERE username = %(recipient)s), 
-##%(content)s)
-##RETURNING id'''          
-##    values = ({'sender' : sender, 'recipient' :recipient, 'content' :content})              
-##    return query, values
+@connect
+def new_message(sender, recipient, content):
+    query = f'''INSERT INTO messages (from_id, to_id, content)
+VALUES ( 
+(SELECT id FROM users WHERE username = %(sender)s),
+(SELECT id FROM users WHERE username = %(recipient)s), 
+%(content)s)
+RETURNING id'''          
+    values = ({'sender' : sender, 'recipient' :recipient, 'content' :content})              
+    return query, values
 ##
-##print("Inserted message_id: ", new_message('zuzia', 'ola', 'info od zuzia do ola'), "\n")
+#print("Inserted message_id: ", new_message('lala', 'beata', 'info od lala do beata'), "\n")
 ##
 
 
-##
-##
 ##
 ### wybierz wiadomosc DO zadanego użytkownika
 @connect
 def select_messages_to(name):
     query = f'''SELECT m.id, u1.username, u2.username, m.content, created_at
-FROM messages m JOIN active_users u1 ON m.from_id = u1.id
-JOIN active_users u2 ON m.to_id = u2.id
+FROM messages m JOIN users u1 ON m.from_id = u1.id
+JOIN users u2 ON m.to_id = u2.id
 WHERE u2.username = %s '''
     values = (name, )
     return query, values
 
-aa = select_messages_to('ola')
+aa = select_messages_to('beata')
 print(aa)
 ##
 ##### zamiana wyniku zapytania o wiadomosci do bazy na format słownika
@@ -214,19 +213,34 @@ def databese_result_to_dict(db_result):
 bb = databese_result_to_dict(aa)
 print(bb)
 
+
+#### Zlicz nieprzeczytane wiadomości do danego uzytkownika OK
+@connect
+def nbr_of_unread_msgs(name):
+    query =f'''SELECT COUNT (*)
+FROM messages m JOIN users u ON m.to_id = u.id
+WHERE m.read = false AND u.username = %s '''
+    values = (name, )
+    return query, values
+
+cc = nbr_of_unread_msgs('lala')
+print(cc[0][0])
+
+
+
+
 ##
 ##### ustaw status wiadomości o id = msg_id na "przeczytana" 
-##@connect
-##def mark_msg_read(msg_id):
-##    query = f"UPDATE message SET read = True WHERE message_id = %s RETURNING message_id"
-##    values = (msg_id, )
-##    return query, values
+@connect
+def mark_msg_read(msg_id):
+    query = f"UPDATE messages SET read = True WHERE id = %s RETURNING id"
+    values = (msg_id, )
+    return query, values
+
+#print(mark_msg_read(4))
 ##
-##
-##print(mark_msg_read(18))
-##
-##   
-##
+
+
 
 ##
 ##### ZEBRANIE W JEDNĄ FUNKCJE ### CZY MA SENS ???
