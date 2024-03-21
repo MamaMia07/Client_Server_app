@@ -101,19 +101,32 @@ VALUES (%s, %s, %s, %s) RETURNING id'''
     values = (username, name, passw, datetime.datetime.now())              
     return postgres_query, values
 
-##print("Inserted user_id: ", insert_new_account('admin', 'tajne', 'name admin'), "\n")
+##print("Inserted user_id: ", insert_new_account('beata', 'haslo beaty', 'name beata'), "\n")
 ##
 
-##  lista uzytkowników z bazy
+##  lista uzytkowników z bazy,
+## lista z WIDOKU active_users (uzytkownicy o statusie True)
+@connect
+def select_active_users():
+    postgres_query = f"SELECT username FROM active_users"
+    values = ()
+    return postgres_query, values
+
+usersA = select_active_users()  # 't' - True, 'f' - False
+
+print("Selected names: ", usersA)
+
+## wszyscy użytkownicy istniejący w bazie
 @connect
 def select_users():
     postgres_query = f"SELECT username FROM users"
-    values = None
+    values = ()
     return postgres_query, values
 
-users = select_users()
+users = select_users()  # 't' - True, 'f' - False
 
 print("Selected names: ", users)
+
 
 
 ##### ZMIANA hasła  OK
@@ -126,9 +139,15 @@ def change_pswrd(pswrd, username):
 ##print(change_pswrd('Nowe haselko-10 oli', 'ola'))
 
 
+##### ZMIANA statusu uzytkownika (aktywny true/false)  OK
+@connect
+def change_status(username, status):
+    query = f"UPDATE users SET active = %s WHERE username = %s RETURNING id"
+    values = (status, username,)
+    return query, values
+##
 
-
-
+##print(change_status('ola', True))
 
 
 
@@ -170,13 +189,13 @@ def change_pswrd(pswrd, username):
 @connect
 def select_messages_to(name):
     query = f'''SELECT m.id, u1.username, u2.username, m.content, created_at
-FROM messages m JOIN users u1 ON m.from_id = u1.id
-JOIN users u2 ON m.to_id = u2.id
+FROM messages m JOIN active_users u1 ON m.from_id = u1.id
+JOIN active_users u2 ON m.to_id = u2.id
 WHERE u2.username = %s '''
     values = (name, )
     return query, values
 
-aa = select_messages_to('zuzia')
+aa = select_messages_to('ola')
 print(aa)
 ##
 ##### zamiana wyniku zapytania o wiadomosci do bazy na format słownika
