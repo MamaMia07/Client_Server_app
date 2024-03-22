@@ -9,7 +9,7 @@ class Server():
 
     def start_user_connection(self, clnt_socket, addr):
         print(f"Connected with {addr[0]}")
-        welcome = {"Welcome to my tiny server! :)":""}
+        welcome = {"Welcome to my server! :)":""}
         response =  {**welcome , **self.scc.start_menu}
         self.scc.send_serv_response(clnt_socket, response)
         while True:
