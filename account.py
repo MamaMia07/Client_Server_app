@@ -12,7 +12,7 @@ class Account():
         #self.date = "" 
        
     def create_account(self):
-        save_new_account(self.username, self.name, self.password)
+        return db.save_new_account(self.username, self.password,  self.name)
         #self.date = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 ##        account = {self.username :
 ##                      { #"status" :  self.status,
@@ -31,7 +31,7 @@ class Account():
         self.username = cmd
 
     def set_password(self, cmd):
-        self.password = hash_pswrd(cmd)  #
+        self.password = db.hash_pswrd(cmd) 
 
 
 
@@ -87,10 +87,10 @@ class NewUserRegistration():
         if confirmation  in ["y", "n"]:
             if confirmation == "y":
                 #self.save_new_account()???
-                self.create_account()
-                response = {f"Account for {self.new_account.username} created.":""}
-            else:
-                response = {f"New account not approved.":"\n"}
+                if self.new_account.create_account():
+                    response = {f"Account for {self.new_account.username} created.":""}
+                else:
+                    response = {f"New account not approved.":"\n"}
         else:
             response =  False
         return response
@@ -112,26 +112,33 @@ class SignInUser():
         self.logged_in = False
 
 
-    def check_user(self, username, users_list):
-        return any(user[0] == username for user in users_list)
-
-
-    def check_password(self, username, pswrd):
-        passw = db.hash_pswrd(pswrd)
-        return pswrd == db.get_password(username)[0][0] 
+##    def check_user(self, username, users_list):
+##        return any(user[0] == username for user in users_list)
+##
+##
+##    def check_password(self, username, pswrd):
+##        passw = db.hash_pswrd(pswrd)
+##        return pswrd == db.get_password(username)[0][0] 
 
 
     def sign_in_user(self, recvd_username, recvd_pswrd):
         recvd_username = recvd_username.lower().strip()
-        users_list = db.select_active_users()
-       
-        if self.check_user(recvd_username, users_list) and self.check_password(recvd_username, recvd_pswrd):
-            for lst in users_list:
-                if recvd_username in lst:
-                    self.username = recvd_username
-                    self.status = lst[1]
-                    break
+        passw = db.hash_pswrd(recvd_pswrd)
+        #users_list = db.select_active_users()
+        user_data = db.user_log_data(recvd_username)
+        if user_data[0][0] == recvd_username and user_data[0][1] == passw:
+            self.username = recvd_username
+            self.status = user_data[0][2]
             self.logged_in = True
+
+
+##        if self.check_user(recvd_username, users_list) and self.check_password(recvd_username, recvd_pswrd):
+##            for lst in users_list:
+##                if recvd_username in lst:
+##                    self.username = recvd_username
+##                    self.status = lst[1]
+##                    break
+##            self.logged_in = True
 
         #if self.check_user(recvd_username, users_list) and self.check_password(recvd_username, recvd_pswrd):
             #self.username = recvd_username

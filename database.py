@@ -56,7 +56,7 @@ def connect(func):
 # hash password
 def hash_pswrd(pswrd):
     salt = bcrypt.gensalt()
-    print(salt)
+    print(bcrypt.hashpw(pswrd.encode(), salt))
     return bcrypt.hashpw(pswrd.encode(), salt)
 
 
@@ -80,12 +80,12 @@ def get_password(username):
 ##print(type(get_password('bambik')[0][0]))
 
 
-# new user to db
+# new user to db - create new account
 @connect
-def save_new_account(username, name, passw): 
+def save_new_account(username, passw, name): 
     query = f'''INSERT INTO users (username, password, name)
 VALUES (%s, %s, %s) RETURNING id'''          
-    values = (username, name, passw)              
+    values = (username, passw, name)              
     return query, values
 
 #print("Inserted user_id: ", save_new_account('bambik', 'haslo bambika', 'name bambik'), "\n")
@@ -108,20 +108,39 @@ def select_active_users():
 
 
 
-users = select_users()  
-print("Selected names: ", users)
-
-users_list = select_active_users()  
-print("Selected active names: ", users_list)
-print("rola danego uzytkownika" , users_list[1][1])
 
 
-##def findItem(theList, item):
-##   return [(ind, theList[ind].index(item)) for ind in range(len(theList)) if item in theList[ind]]
-for lst in users_list:
-    if "ola" in lst:
-        print(f"rola bambika: {lst[1]}")
-        break
+##users = select_users()  
+##print("Selected names: ", users)
+##
+##users_list = select_active_users()  
+##print("Selected active names: ", users_list)
+##print("rola danego uzytkownika" , users_list[1][1])
+##
+##for lst in users_list:
+##    if "ola" in lst:
+##        print(f"rola bambika: {lst[1]}")
+##        break
+
+    
+
+# user's data for login
+@connect
+def user_log_data(username):
+    query = f'''SELECT username, password, roles.role
+FROM users JOIN roles ON users.role_id = roles.id
+WHERE username = %s '''
+    values = (username,)
+    return query, values
+
+##bambik = user_log_data('bambik')
+##print(bambik)
+##print(f"username : {bambik[0][0]}")
+##print(f"pswrd : {bambik[0][1]}")
+##print(f"role : {bambik[0][2]}")
+
+
+
 
 
 ##
@@ -138,16 +157,9 @@ for lst in users_list:
 
 ####  czy dany uzytkownik istnieje w bazie?
 ####is_user_in_bd = any(user[0] =='uuu' for user in users)
-uzytkownik = 'bambik'
-print(f"\nW bazie istnieje użytkownik {uzytkownik}? ",any(user[0] == uzytkownik for user in users),'\n')
+##uzytkownik = 'bambik'
+##print(f"\nW bazie istnieje użytkownik {uzytkownik}? ",any(user[0] == uzytkownik for user in users),'\n')
 ##
-
-
-
-
-
-
-
 
 
 
@@ -200,8 +212,8 @@ WHERE u2.username = %s '''
     values = (name, )
     return query, values
 
-aa = select_messages_to('beata')
-print(aa)
+##aa = select_messages_to('beata')
+##print(aa)
 
 
 
@@ -215,8 +227,8 @@ WHERE u1.username = %s '''
     values = (name, )
     return query, values
 
-ff = select_messages_from('zuzia')
-print(f'wiadomości od ...... \n{ff}')
+##ff = select_messages_from('zuzia')
+##print(f'wiadomości od ...... \n{ff}')
 
 
 
@@ -235,8 +247,8 @@ def databese_result_to_dict(db_result):
     return dictionary
 
 ##
-bb = databese_result_to_dict(aa)
-print(bb)
+##bb = databese_result_to_dict(aa)
+##print(bb)
 
 
 # number of not read messages to user
@@ -250,8 +262,8 @@ WHERE m.read = false AND u.username = %s '''
 
 
 
-cc = nbr_of_unread_msgs('lala')
-print(cc[0][0])
+##cc = nbr_of_unread_msgs('lala')
+##print(cc[0][0])
 
 
 
@@ -264,4 +276,8 @@ def mark_msg_read(msg_id):
 
 
 #print(mark_msg_read(4))
+##
+##if __name__ == "__main__":
+##    print("Hello, World!")
+
 

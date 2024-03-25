@@ -12,13 +12,13 @@ class Client():
         data = ""
         while True:
             rec = clnt_socket.recv(self.size)
-            if not rec:
-                break
+     #       if not rec:
+     #           break
             data += rec.decode("utf-8")
-            #if len(rec) < self.size: break 
-        #for key in json.loads(data):
-        #    print(f"{key} {json.loads(data)[key]}")
-        #return data
+            if len(rec) < self.size: break 
+        for key in json.loads(data):
+            print(f"{key} {json.loads(data)[key]}")
+        return data
         for key, value in json.loads(data).items():
             print(f"{key} {value}")
         return data

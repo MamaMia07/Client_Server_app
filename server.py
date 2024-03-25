@@ -25,7 +25,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server:
         clnt_conn_socket, address = server.accept()
         clnt_serv = Server(serv_init.start, serv_init.version)
         users.append(clnt_conn_socket)
-        thread = threading.Thread(target = clnt_serv.handle_client, args =(clnt_conn_socket, address))
+        thread = threading.Thread(target = clnt_serv.handle_client, args =(clnt_conn_socket, address,))
         n = len(threads)
         threads.append(thread)
         threads[n].start()

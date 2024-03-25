@@ -8,7 +8,8 @@ def read_from_file(file_path):
         return data
     except json.decoder.JSONDecodeError:
         print(f"file {file_path} can not be read")
-    except: print(f"file {file_path} content not available")
+    except:
+        print(f"file {file_path} content not available")
         pass
 
 def save_file(file, data):
