@@ -2,6 +2,7 @@ import datetime
 import user
 #from database import *
 import database as db
+import bcrypt  # usunac!
 
 class Account():
     def __init__(self):
@@ -24,6 +25,10 @@ class Account():
 ##                   }
 ##        return account
 
+
+
+## ____!!!!!!!  geter i seter spróbowac ??? ___________
+
     def set_name(self, cmd):
         self.name = cmd
 
@@ -31,7 +36,7 @@ class Account():
         self.username = cmd
 
     def set_password(self, cmd):
-        self.password = db.hash_pswrd(cmd) 
+        self.password = cmd    #db.hash_pswrd(cmd)
 
 
 
@@ -52,7 +57,7 @@ class NewUserRegistration():
             response = True
         return response
 
-# zastapic odczytem z bazy    
+    
     def insert_username(self,recvd_username):
         recvd_username = recvd_username.lower().strip()
 
@@ -121,12 +126,16 @@ class SignInUser():
 ##        return pswrd == db.get_password(username)[0][0] 
 
 
+
+#!!!!!!!!!!! czy działa jak złe dane wpisze??? !!!!!!!!!!!!!!!
+
     def sign_in_user(self, recvd_username, recvd_pswrd):
         recvd_username = recvd_username.lower().strip()
         passw = db.hash_pswrd(recvd_pswrd)
-        #users_list = db.select_active_users()
+
         user_data = db.user_log_data(recvd_username)
-        if user_data[0][0] == recvd_username and user_data[0][1] == passw:
+        
+        if user_data[0][0] == recvd_username and db.check_password(recvd_pswrd, user_data[0][1]):
             self.username = recvd_username
             self.status = user_data[0][2]
             self.logged_in = True

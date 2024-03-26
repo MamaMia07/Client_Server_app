@@ -57,38 +57,42 @@ def connect(func):
 def hash_pswrd(pswrd):
     salt = bcrypt.gensalt()
     print(bcrypt.hashpw(pswrd.encode(), salt))
-    return bcrypt.hashpw(pswrd.encode(), salt)
+    return (bcrypt.hashpw(pswrd.encode(), salt)).decode()
+
+
+def check_password(recvd_pswrd, hashed_pswrd):
+    return bcrypt.checkpw(recvd_pswrd.encode(), hashed_pswrd.encode())
 
 
 # change password
 @connect
 def change_pswrd(pswrd, username):
     query = f"UPDATE users SET password = %s WHERE username = %s RETURNING id"
-    values = (pswrd, username,)
+    values = (hash_pswrd(pswrd), username,) # MA BYC JUZ ZAHASHOWANE!!!!!
     return query, values
 
 ##print(change_pswrd('Nowe haselko-10 oli', 'ola'))
 
-
-@connect
-def get_password(username):
-    query = f"SELECT password FROM users WHERE username = %s"
-    values = (username, )
-    return query , values
-
-##print(f"z bazy hasło : {get_password('bambik')}")
-##print(type(get_password('bambik')[0][0]))
+#### CZY POTRZEBNE?? 
+##@connect
+##def get_password(username):
+##    query = f"SELECT password FROM users WHERE username = %s"
+##    values = (username, )
+##    return query , values
+##
+####print(f"z bazy hasło : {get_password('bambik')}")
+####print(type(get_password('bambik')[0][0]))
 
 
 # new user to db - create new account
 @connect
-def save_new_account(username, passw, name): 
+def save_new_account(username, pswrd, name): 
     query = f'''INSERT INTO users (username, password, name)
-VALUES (%s, %s, %s) RETURNING id'''          
-    values = (username, passw, name)              
+VALUES (%(username)s, %(password)s, %(name)s) RETURNING id'''          
+    values = ({'username':username, 'password' :hash_pswrd(pswrd), 'name': name})              
     return query, values
 
-#print("Inserted user_id: ", save_new_account('bambik', 'haslo bambika', 'name bambik'), "\n")
+#print("Inserted user_id: ", save_new_account('test', hash_pswrd('test'), 'name test'), "\n")
 
 
 # list of all users
@@ -99,15 +103,12 @@ def select_users():
     return query, values
 
 
-# list of active users
+# list of active users - potrzebne???
 @connect
 def select_active_users():
     query = f"SELECT username, role FROM active_users u JOIN roles ON u.role_id = roles.id"
     values = ()
     return query, values
-
-
-
 
 
 ##users = select_users()  
@@ -128,19 +129,25 @@ def select_active_users():
 @connect
 def user_log_data(username):
     query = f'''SELECT username, password, roles.role
-FROM users JOIN roles ON users.role_id = roles.id
+FROM active_users u JOIN roles ON u.role_id = roles.id
 WHERE username = %s '''
     values = (username,)
     return query, values
 
-##bambik = user_log_data('bambik')
-##print(bambik)
-##print(f"username : {bambik[0][0]}")
-##print(f"pswrd : {bambik[0][1]}")
-##print(f"role : {bambik[0][2]}")
-
-
-
+##name = 'bambik'
+##user = user_log_data(name)
+##print(user)
+##user_pas = user[0][1] 
+##print(f"username : {user[0][0]}")
+##print(f"pswrd : {(user[0][1])}")
+##print(f"role : {user[0][2]}")
+##print("zakodowane tu")
+##hashed = hash_pswrd(name) 
+##print((hashed))
+##print(user[0][1]== hashed)
+##haslo = 'bambik'
+##print(bcrypt.checkpw(haslo.encode(), user_pas.encode(),))
+##print(check_password(haslo, user[0][1]))
 
 
 ##
