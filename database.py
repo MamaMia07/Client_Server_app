@@ -134,6 +134,13 @@ WHERE username = %s '''
     values = (username,)
     return query, values
 
+
+@connect
+def set_login_date(username):
+    query = f"UPDATE users SET last_log = now() WHERE username = %s RETURNING id"
+    values = (username, )
+    return query, values
+
 ##name = 'bambik'
 ##user = user_log_data(name)
 ##print(user)
@@ -211,12 +218,12 @@ RETURNING id'''
 
 # messages TO user
 @connect
-def select_messages_to(name):
+def select_messages_to(username):
     query = f'''SELECT m.id, u1.username, u2.username, m.content, created_at
 FROM messages m JOIN users u1 ON m.from_id = u1.id
 JOIN users u2 ON m.to_id = u2.id
 WHERE u2.username = %s '''
-    values = (name, )
+    values = (username, )
     return query, values
 
 ##aa = select_messages_to('beata')
@@ -226,12 +233,12 @@ WHERE u2.username = %s '''
 
 # messages FROM user
 @connect
-def select_messages_from(name):
+def select_messages_from(username):
     query = f'''SELECT m.id, u1.username, u2.username, m.content, created_at
 FROM messages m JOIN users u1 ON m.from_id = u1.id
 JOIN users u2 ON m.to_id = u2.id
 WHERE u1.username = %s '''
-    values = (name, )
+    values = (username, )
     return query, values
 
 ##ff = select_messages_from('zuzia')
@@ -242,7 +249,7 @@ WHERE u1.username = %s '''
 
 ##
 ##### zamiana wyniku zapytania o wiadomosci do bazy na format słownika
-def databese_result_to_dict(db_result):
+def database_result_to_dict(db_result):
     dictionary = {}
     for row in db_result:
         #row = row[0][1:-1].split(",")
@@ -260,17 +267,19 @@ def databese_result_to_dict(db_result):
 
 # number of not read messages to user
 @connect
-def nbr_of_unread_msgs(name):
+def nbr_of_unread_msgs(username):
     query =f'''SELECT COUNT (*)
 FROM messages m JOIN users u ON m.to_id = u.id
 WHERE m.read = false AND u.username = %s '''
-    values = (name, )
+    values = (username, )
     return query, values
 
 
 
 ##cc = nbr_of_unread_msgs('lala')
+##print("liczba wuadomości")
 ##print(cc[0][0])
+##print(type(cc[0][0]))
 
 
 

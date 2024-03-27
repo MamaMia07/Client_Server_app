@@ -44,7 +44,9 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as clnt_socket:
         if request != "":
             clnt_socket.send(request.encode("utf-8"))
         else: continue
-        if request == "exit": connected = False #break
+        if request == "exit":
+            connected = False
+            
         try:
             rec_srv = client.receive(clnt_socket)
         except ConnectionError as e:

@@ -32,7 +32,7 @@ END
 $$;
 
 CREATE TRIGGER update_user_modified_on
-BEFORE UPDATE
+BEFORE UPDATE OF username, password, name, active, role_id
 ON users
 FOR EACH ROW
 EXECUTE PROCEDURE update_modified_on_user(); 

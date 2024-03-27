@@ -7,13 +7,13 @@ import bcrypt  # usunac!
 class Account():
     def __init__(self):
         #self.status = "user"
-        self.username = ""
-        self.password = ""
-        self.name = ""
+        self._username = ""
+        self._password = ""
+        self._name = ""
         #self.date = "" 
        
     def create_account(self):
-        return db.save_new_account(self.username, self.password,  self.name)
+        return db.save_new_account(self._username, self._password,  self._name)
         #self.date = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 ##        account = {self.username :
 ##                      { #"status" :  self.status,
@@ -30,13 +30,13 @@ class Account():
 ## ____!!!!!!!  geter i seter spróbowac ??? ___________
 
     def set_name(self, cmd):
-        self.name = cmd
+        self._name = cmd
 
     def set_username(self, cmd):
-        self.username = cmd
+        self._username = cmd
 
     def set_password(self, cmd):
-        self.password = cmd    #db.hash_pswrd(cmd)
+        self._password = cmd    #db.hash_pswrd(cmd)
 
 
 
@@ -127,18 +127,17 @@ class SignInUser():
 
 
 
-#!!!!!!!!!!! czy działa jak złe dane wpisze??? !!!!!!!!!!!!!!!
 
     def sign_in_user(self, recvd_username, recvd_pswrd):
         recvd_username = recvd_username.lower().strip()
         passw = db.hash_pswrd(recvd_pswrd)
 
         user_data = db.user_log_data(recvd_username)
-        
-        if user_data[0][0] == recvd_username and db.check_password(recvd_pswrd, user_data[0][1]):
-            self.username = recvd_username
-            self.status = user_data[0][2]
-            self.logged_in = True
+        if len(user_data)> 0:
+            if user_data[0][0] == recvd_username and db.check_password(recvd_pswrd, user_data[0][1]):
+                self.username = recvd_username
+                self.status = user_data[0][2]
+                self.logged_in = True
 
 
 ##        if self.check_user(recvd_username, users_list) and self.check_password(recvd_username, recvd_pswrd):
@@ -162,4 +161,5 @@ class SignInUser():
         elif self.status == "admin":
             logged_in_user = user.Admin(self.username, self.status)
         print(f"{self.username} logged in as {self.status}")
+        db.set_login_date(self.username)
         return logged_in_user
