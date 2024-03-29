@@ -177,6 +177,11 @@ class ClntServCommunication():
         msg_nmb = 0
         for key in messages:
             response = messages[key]
+
+## POPRAWIC OZNACZANIE WIADOMOSCI read ================
+            print(response)
+            if 'to:' in response and self.logged_in_user.username == response['to:']:
+                self.logged_in_user.mark_msg_read(key)
             msg_nmb += 1
             if msg_nmb < len(messages):
                 response.update({"\nnext message?": "y/n"})

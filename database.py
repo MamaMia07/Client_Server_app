@@ -197,7 +197,7 @@ def change_status(username, status):
 ####        print(f"{key}: {value}")
 ##
 
-
+#### -------- MESSAGES ---------------------
 
 # new message to db
 @connect
@@ -211,58 +211,94 @@ RETURNING id'''
     values = ({'sender' : sender, 'recipient' :recipient, 'content' :content})              
     return query, values
 ##
-#print("Inserted message_id: ", new_message('lala', 'beata', 'info od lala do beata'), "\n")
+##print("Inserted message_id: ", new_message('admin', 'zuzia', ' info od admin do zuzia'), "\n")
 ##
 
 
 
+### messages FROM user
+##@connect
+##def select_messages_from___(username):
+##    query = f'''SELECT m.id, u1.username, u2.username, m.content, created_at
+##FROM messages m JOIN users u1 ON m.from_id = u1.id
+##JOIN users u2 ON m.to_id = u2.id
+##WHERE u1.username = %s '''
+##    values = (username, )
+##    return query, values
+
+##ff = select_messages_from___('zuzia')
+##print(f'wiadomości od ...... \n{ff}')
+
+##
+####### zamiana wyniku zapytania o wiadomosci do bazy na format słownika
+##def messages_list(db_result):
+##    messages_list = []
+##    for row in db_result:
+##        #row = row[0][1:-1].split(",")
+##        messages_list.append({'msg_id' :row[0],
+##                     'from' : row[1],
+##                     'to' : row[2],
+##                     'datetime' : row[4].strftime("%d.%m.%Y %H:%M:%S"),        
+##                     'content' : row[3].strip('"')
+##                     })
+##    return messages_list
+
+##
+#bb = messages_list(aa)
+#print(bb)
+
+
+
+###  database results to dict
+def db_res_to_dict(func):
+    def wrapper(*args, **kwargs):
+        db_result = func(*args, **kwargs)
+        messages_list = {}
+        for item in db_result:
+            messages_list[item[0]] = {'msg_id': item[0],
+                     'from' : item[1],
+                     'to' : item[2],
+                     'datetime' : item[4].strftime("%d.%m.%Y %H:%M:%S"),        
+                     'content' : item[3].strip('"'),
+                     'read' : item[5]
+                     }
+        return messages_list
+    return wrapper
+    
+
+
+
+
 # messages TO user
+@db_res_to_dict
 @connect
 def select_messages_to(username):
-    query = f'''SELECT m.id, u1.username, u2.username, m.content, created_at
+    query = f'''SELECT m.id, u1.username, u2.username, m.content, created_at, read
 FROM messages m JOIN users u1 ON m.from_id = u1.id
 JOIN users u2 ON m.to_id = u2.id
-WHERE u2.username = %s '''
-    values = (username, )
+WHERE u2.username = %s'''
+    values = (username,)
     return query, values
 
-##aa = select_messages_to('beata')
+##aa = select_messages_to('bambik')
 ##print(aa)
 
 
-
-# messages FROM user
+@db_res_to_dict
 @connect
 def select_messages_from(username):
-    query = f'''SELECT m.id, u1.username, u2.username, m.content, created_at
+    query = f'''SELECT m.id, u1.username, u2.username, m.content, created_at, read
 FROM messages m JOIN users u1 ON m.from_id = u1.id
 JOIN users u2 ON m.to_id = u2.id
 WHERE u1.username = %s '''
     values = (username, )
     return query, values
 
-##ff = select_messages_from('zuzia')
-##print(f'wiadomości od ...... \n{ff}')
+
+#print(select_messages_from('admin'))
 
 
 
-
-##
-##### zamiana wyniku zapytania o wiadomosci do bazy na format słownika
-def database_result_to_dict(db_result):
-    dictionary = {}
-    for row in db_result:
-        #row = row[0][1:-1].split(",")
-        dictionary[row[0]] = {'from' : row[1],
-                            'to' : row[2],
-                            'content' : row[3].strip('"'),
-                            'datetime' : row[4].strftime("%d.%m.%Y %H:%M:%S"),#.strip('"'),
-                            }
-    return dictionary
-
-##
-##bb = databese_result_to_dict(aa)
-##print(bb)
 
 
 # number of not read messages to user

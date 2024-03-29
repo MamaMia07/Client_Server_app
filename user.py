@@ -14,41 +14,50 @@ class User():
 
 ## DO POPRAWY
     def read_old_msgs(self):
-        read_msg_stat = ""
-        file = self.username + "_received_msgs.json"
-        return self.read_msg(file, read_msg_stat)
+        message_box = db.select_messages_to(self.username)
+        msg_status = ""
+        #file = self.username + "_received_msgs.json"
+        return self.read_msg(self.username, msg_status, message_box)
 
     def read_new_msgs(self):
-        read_msg_stat = True
-        file = self.username+"_received_msgs.json"
-        return self.read_msg(file, read_msg_stat)
+        message_box = db.select_messages_to(self.username)
+        msg_status = True
+        #file = self.username+"_received_msgs.json"
+        return self.read_msg(self.username, msg_status, message_box)
 
-    def read_sent_msgs(self): 
-        read_msg_stat = ""
-        file = self.username + "_sent_msgs.json"
-        return self.read_msg(file, read_msg_stat)
 
-    def get_msgs_list(self,message_box, read_msg_stat):
+    def read_sent_msgs(self):
+        message_box = db.select_messages_from(self.username)
+        msg_status = ""
+#        file = self.username + "_sent_msgs.json"
+        return self.read_msg(self.username, msg_status, message_box)
+
+
+    def mark_msg_read(self, msg_id):
+        db.mark_msg_read(msg_id)
+
+
+    def get_msgs_list(self,username, msg_status, message_box):
+        #message_box = db.select_messages_to(username)
         msg = {}
         for key in message_box:
-            if message_box[key]["message read"] != read_msg_stat:
-                msg[key] ={"from:" : message_box[key]["sender"],
-                       "to:" : message_box[key]["recipient"],
-                       "date:" : message_box[key]["creation date"],
-                       "text:\n" : message_box[key]["text"]
+            if message_box[key]["read"] != msg_status:
+                msg[key] ={"from:" : message_box[key]["from"],
+                       "to:" : message_box[key]["to"],
+                       "date:" : message_box[key]["datetime"],
+                       "content:\n" : message_box[key]["content"]
                         }
-                message_box[key]["message read"] = True
                 response = msg
         return response
 
-    def read_msg(self, file, read_msg_stat):
-        path_file = self.path + file
+    def read_msg(self, username, msg_status, message_box ):
+#        path_file = self.path + file
         try:
-            message_box = read_from_file(path_file)
-            response = self.get_msgs_list(message_box, read_msg_stat)
+            #message_box = read_from_file(path_file)
+            response = self.get_msgs_list(username, msg_status, message_box)
             finish = {"":{"All messages are read.": ""}}
             response.update(finish)
-            save_file(path_file, message_box)
+#            save_file(path_file, message_box)
         except: response = {'':{"There is no message": ""}}
         return response
 
@@ -144,8 +153,10 @@ class Message():
         return response 
 
 # przerobione - NIEPOTRZEBNE ?
-    def number_unread_msgs(self, username):
-        return db.nbr_of_unread_msgs(username)
+#    def number_unread_msgs(self, username):
+#        return db.nbr_of_unread_msgs(username)
+
+
 
 ##        file_path = f"users/{name}/" + file
 ##        not_read_msgs = 0
