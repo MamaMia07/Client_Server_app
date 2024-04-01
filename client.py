@@ -46,7 +46,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as clnt_socket:
         else: continue
         if request == "exit":
             connected = False
-            
         try:
             rec_srv = client.receive(clnt_socket)
         except ConnectionError as e:

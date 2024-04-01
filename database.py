@@ -16,19 +16,13 @@ def config(filename = 'database.ini', section = 'postgresql'):
     return db
 
 
-
 def connect(func):
     def wrapper(*args, **kwargs):
         record = None
         try:
-            # read connection parameters
             db_parameters = config()
-
-            # connect to the PostgreSQL server
-            print('\nConnecting to the PostgreSQL database...')
+            #print('\nConnecting to the PostgreSQL database...')
             connection = psycopg2.connect(**db_parameters)
-
-            # Create a cursor to perform database operations
             cursor = connection.cursor()
 
             postgres_query , values = func(*args, **kwargs)
@@ -38,9 +32,7 @@ def connect(func):
                 record = cursor.fetchall()
             except:
                 print("Nothing to fetch")
-
             print(f"Query {func.__name__} executed successfully")
-
         except (Exception, psycopg2.Error) as error:
              print("Error while connecting to PostgreSQL:\n",error)
         finally:
@@ -48,7 +40,6 @@ def connect(func):
                 cursor.close()
                 connection.close()
                 print("PostgreSQL connection is closed.")  
-        
         return record
     return wrapper
 
@@ -68,20 +59,8 @@ def check_password(recvd_pswrd, hashed_pswrd):
 @connect
 def change_pswrd(pswrd, username):
     query = f"UPDATE users SET password = %s WHERE username = %s RETURNING id"
-    values = (hash_pswrd(pswrd), username,) # MA BYC JUZ ZAHASHOWANE!!!!!
+    values = (hash_pswrd(pswrd), username,) 
     return query, values
-
-##print(change_pswrd('Nowe haselko-10 oli', 'ola'))
-
-#### CZY POTRZEBNE?? 
-##@connect
-##def get_password(username):
-##    query = f"SELECT password FROM users WHERE username = %s"
-##    values = (username, )
-##    return query , values
-##
-####print(f"z bazy hasło : {get_password('bambik')}")
-####print(type(get_password('bambik')[0][0]))
 
 
 # new user to db - create new account
@@ -91,8 +70,6 @@ def save_new_account(username, pswrd, name):
 VALUES (%(username)s, %(password)s, %(name)s) RETURNING id'''          
     values = ({'username':username, 'password' :hash_pswrd(pswrd), 'name': name})              
     return query, values
-
-#print("Inserted user_id: ", save_new_account('test', hash_pswrd('test'), 'name test'), "\n")
 
 
 # list of all users
@@ -110,20 +87,7 @@ def select_active_users():
     values = ()
     return query, values
 
-
-##users = select_users()  
-##print("Selected names: ", users)
-##
-##users_list = select_active_users()  
-##print("Selected active names: ", users_list)
-##print("rola danego uzytkownika" , users_list[1][1])
-##
-##for lst in users_list:
-##    if "ola" in lst:
-##        print(f"rola bambika: {lst[1]}")
-##        break
-
-    
+  
 
 # user's data for login
 @connect
@@ -141,42 +105,6 @@ def set_login_date(username):
     values = (username, )
     return query, values
 
-##name = 'bambik'
-##user = user_log_data(name)
-##print(user)
-##user_pas = user[0][1] 
-##print(f"username : {user[0][0]}")
-##print(f"pswrd : {(user[0][1])}")
-##print(f"role : {user[0][2]}")
-##print("zakodowane tu")
-##hashed = hash_pswrd(name) 
-##print((hashed))
-##print(user[0][1]== hashed)
-##haslo = 'bambik'
-##print(bcrypt.checkpw(haslo.encode(), user_pas.encode(),))
-##print(check_password(haslo, user[0][1]))
-
-
-##
-##username_ind = [(i, users_list[i].index("bambik"))
-##               for i in range(len(users_list)) if "bambik" in users_list[i]]
-##
-##print(username_ind[0][1])
-##print(findItem(users_list, 'admin')) # [(0, 0)]
-##print(findItem(users_list, 'bambik')) # [(1, 2)]
-
-
-
-
-
-####  czy dany uzytkownik istnieje w bazie?
-####is_user_in_bd = any(user[0] =='uuu' for user in users)
-##uzytkownik = 'bambik'
-##print(f"\nW bazie istnieje użytkownik {uzytkownik}? ",any(user[0] == uzytkownik for user in users),'\n')
-##
-
-
-
 
 #  change user's password
 @connect
@@ -185,19 +113,8 @@ def change_status(username, status):
     values = (status, username,)
     return query, values
 
-##print(change_status('ola', True))
 
-
-##
-#####         wydruk słownika otrzymanego jako rezultat z bazy, po zapytaniu:
-#####         cursor = connection.cursor(cursor_factory=extras.RealDictCursor)
-####for row in users:
-####    print("--------")
-####    for key, value in row.items():
-####        print(f"{key}: {value}")
-##
-
-#### -------- MESSAGES ---------------------
+#-------- MESSAGES ---------------------
 
 # new message to db
 @connect
@@ -210,46 +127,9 @@ VALUES (
 RETURNING id'''          
     values = ({'sender' : sender, 'recipient' :recipient, 'content' :content})              
     return query, values
-##
-##print("Inserted message_id: ", new_message('admin', 'zuzia', ' info od admin do zuzia'), "\n")
-##
 
 
-
-### messages FROM user
-##@connect
-##def select_messages_from___(username):
-##    query = f'''SELECT m.id, u1.username, u2.username, m.content, created_at
-##FROM messages m JOIN users u1 ON m.from_id = u1.id
-##JOIN users u2 ON m.to_id = u2.id
-##WHERE u1.username = %s '''
-##    values = (username, )
-##    return query, values
-
-##ff = select_messages_from___('zuzia')
-##print(f'wiadomości od ...... \n{ff}')
-
-##
-####### zamiana wyniku zapytania o wiadomosci do bazy na format słownika
-##def messages_list(db_result):
-##    messages_list = []
-##    for row in db_result:
-##        #row = row[0][1:-1].split(",")
-##        messages_list.append({'msg_id' :row[0],
-##                     'from' : row[1],
-##                     'to' : row[2],
-##                     'datetime' : row[4].strftime("%d.%m.%Y %H:%M:%S"),        
-##                     'content' : row[3].strip('"')
-##                     })
-##    return messages_list
-
-##
-#bb = messages_list(aa)
-#print(bb)
-
-
-
-###  database results to dict
+# database results to dict
 def db_res_to_dict(func):
     def wrapper(*args, **kwargs):
         db_result = func(*args, **kwargs)
@@ -267,8 +147,6 @@ def db_res_to_dict(func):
     
 
 
-
-
 # messages TO user
 @db_res_to_dict
 @connect
@@ -276,28 +154,24 @@ def select_messages_to(username):
     query = f'''SELECT m.id, u1.username, u2.username, m.content, created_at, read
 FROM messages m JOIN users u1 ON m.from_id = u1.id
 JOIN users u2 ON m.to_id = u2.id
-WHERE u2.username = %s'''
+WHERE u2.username = %s
+ORDER BY created_at DESC'''
     values = (username,)
     return query, values
 
-##aa = select_messages_to('bambik')
-##print(aa)
 
 
+# messages FROM user
 @db_res_to_dict
 @connect
 def select_messages_from(username):
     query = f'''SELECT m.id, u1.username, u2.username, m.content, created_at, read
 FROM messages m JOIN users u1 ON m.from_id = u1.id
 JOIN users u2 ON m.to_id = u2.id
-WHERE u1.username = %s '''
+WHERE u1.username = %s
+ORDER BY created_at DESC'''
     values = (username, )
     return query, values
-
-
-#print(select_messages_from('admin'))
-
-
 
 
 
@@ -311,25 +185,9 @@ WHERE m.read = false AND u.username = %s '''
     return query, values
 
 
-
-##cc = nbr_of_unread_msgs('lala')
-##print("liczba wuadomości")
-##print(cc[0][0])
-##print(type(cc[0][0]))
-
-
-
-#  set message status read - true
+# set message status read - true
 @connect
 def mark_msg_read(msg_id):
     query = f"UPDATE messages SET read = true WHERE id = %s RETURNING id"
     values = (msg_id, )
     return query, values
-
-
-#print(mark_msg_read(4))
-##
-##if __name__ == "__main__":
-##    print("Hello, World!")
-
-
